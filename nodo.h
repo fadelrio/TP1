@@ -7,7 +7,7 @@
 typedef struct nodo nodo_t;
 typedef struct resorte resorte_t;
 
-nodo_t *nodo_crear(float posicion[2]);
+nodo_t *nodo_crear(float posicion[2], bool es_fijo);
 
 void nodo_destruir(nodo_t nodo);
 
@@ -27,5 +27,8 @@ size_t nodo_obtener_cantidad_de_resortes(nodo_t nodo);
 
 //devuelve por interfaz a posicion un vector de dos elementos donde el primero corresponde a las x y el segundo a las y.
 void nodo_obtener_posicion(nodo_t nodo, float posicion[2]);
+
+//devuelve si el nodo es fijo o no
+bool nodo_es_fijo(nodo_t nodo);
 
 #endif
