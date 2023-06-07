@@ -9,7 +9,7 @@ typedef struct resorte resorte_t;
 
 nodo_t *nodo_crear(float posicion[2], bool es_fijo);
 
-void nodo_destruir(nodo_t nodo);
+void nodo_destruir(nodo_t *nodo);
 
 //float obtener_masa(nodo_t nodo); Hace falta que los nodos conozcan su propia masa???
 
