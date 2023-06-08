@@ -1,5 +1,5 @@
 #include "nodo.h"
-#include "resorte.h"
+//#include "resorte.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,8 +38,8 @@ bool nodo_agregar_resorte(resorte_t *resorte, nodo_t *nodo){
 	return true;
 }
 
-bool nodo_eliminar_resorte(resorte_t *resorte, nodo_t *nodo){
-	size_t i = 0;	
+bool nodo_eliminar_resorte(resorte_t *resorte, nodo_t *nodo){ //Hay que buscar una forma de solucionarlo sin incluir resorte.h porque queda recursivo
+/*	size_t i = 0;	
 	for (;resorte_comparar(resorte, nodo->resortes[i]) && i < nodo->nres ; i++);
 	if (i == nodo->nres)
 		return false;
@@ -48,6 +48,7 @@ bool nodo_eliminar_resorte(resorte_t *resorte, nodo_t *nodo){
 	}
 	nodo->nres--;
 	return true;
+*/
 }
 
 resorte_t **nodo_obtener_resortes(const nodo_t *nodo){
