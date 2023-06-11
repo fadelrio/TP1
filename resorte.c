@@ -7,7 +7,7 @@
 typedef struct resorte{
 	float longitud;
 	float constante;
-	nodo_t **nodos[2];
+	nodo_t *nodos[2];
 } resorte_t;
 
 resorte_t *resorte_crear(nodo_t *nodo1, nodo_t *nodo2){
