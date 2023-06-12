@@ -1,11 +1,9 @@
 #include "nodo.h"
-//#include "resorte.h"
 #include <stdlib.h>
 #include <string.h>
 
 
 struct nodo{
-	//float masa; depende de la respuesta a la pregunta del header
 	resorte_t **resortes;//es NULL si nres es 0
 	size_t resortes_memb;//cantidad de memoria almacenada para la lista de resortes
 	size_t nres;//cantidad de resortes
@@ -16,6 +14,8 @@ struct nodo{
 
 nodo_t *nodo_crear(float posicion[2], bool es_fijo){
 	nodo_t *nodo = malloc(sizeof(nodo_t));
+	if (nodo == NULL)
+		return NULL;
 	nodo->resortes = NULL;
 	nodo->resortes_memb = 0;
 	nodo->nres = 0;	

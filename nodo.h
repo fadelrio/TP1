@@ -1,6 +1,10 @@
 #ifndef NODO_H
 #define NODO_H
 
+/*
+Muchas de las funciones y el funcionamiento general de este TDA está pensado para que haya otro TDA que se ocupe de administrarlo en conjunto con resortes_t.
+*/
+
 #include <stddef.h>
 #include <stdbool.h>
 

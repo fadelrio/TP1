@@ -3,10 +3,12 @@
 
 
 //devuelve la norma de el vector
-float vector_norma(size_t d,const float v[d]);
+float vector_norma(size_t d,const float v[]);
 
 //devuelve por interfaz la suma de los vectores a y b en el vector c
-void vector_suma(size_t d, const float a[d], const float b[d], float c[d]);
+void vector_suma(size_t d, const float a[], const float b[], float c[]);
+
+bool vector_comparar(size_t d, const float a[], const float b[]);
 
 
 #endif
