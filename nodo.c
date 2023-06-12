@@ -4,7 +4,7 @@
 
 
 struct nodo{
-	resorte_t **resortes;//es NULL si nres es 0
+	resorte_t **resortes;//está vacio si nres = 0.
 	size_t resortes_memb;//cantidad de memoria almacenada para la lista de resortes
 	size_t nres;//cantidad de resortes
 	bool es_fijo;
@@ -49,11 +49,12 @@ bool nodo_agregar_resorte(resorte_t *resorte, nodo_t *nodo){
 
 bool nodo_eliminar_resorte(resorte_t *resorte, nodo_t *nodo, bool (*comparador)(resorte_t*, resorte_t*)){ 
 	size_t i = 0;	
-	for (;comparador(resorte, nodo->resortes[i]) && i < nodo->nres ; i++);
+	for (;i < nodo->nres && !(comparador(resorte, nodo->resortes[i])); i++);
 	if (i == nodo->nres)
 		return false;
+	nodo->resortes[i] = NULL;
 	for (;i<nodo->nres;i++){
-		nodo->resortes[i] = nodo->resortes[i+1];
+		memmove(nodo->resortes[i],nodo->resortes[i+1], nodo->nres-(i+1));
 	}
 	nodo->nres--;
 	return true;
@@ -70,6 +71,10 @@ size_t nodo_obtener_cantidad_de_resortes(const nodo_t *nodo){
 
 void nodo_obtener_posicion(const nodo_t *nodo, float posicion[2]){
 	memcpy(posicion, nodo->posicion, 2 * sizeof(float));
+}
+
+void nodo_actualizar_posicion(nodo_t *nodo, float posicion[2]){
+	memcpy(nodo->posicion, posicion, 2 * sizeof(float));
 }
 
 bool nodo_es_fijo(const nodo_t *nodo){

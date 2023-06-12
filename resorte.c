@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 
+
 typedef struct resorte{
 	float longitud;//depende de la posicion de los nodos, se deberá actualizar cuando se modifique la posicion de los nodos
 	float constante;//depende de la longitud, se debera actualizar en los mismos casos en los q se actualice la longitud
@@ -20,7 +21,7 @@ resorte_t *resorte_crear(nodo_t *nodo1, nodo_t *nodo2){
 	float aux[2];
 	nodo_obtener_posicion(nodo1,xn1);
 	nodo_obtener_posicion(nodo2,xn2);
-	vector_suma(2,xn1,xn2,aux);	
+	vector_resta(2,xn1,xn2,aux);	
 	r->longitud = vector_norma(2, aux);
 	r->constante = K_BASE/powf(r->longitud, POTENCIA_K);
 	r->nodos[0] = nodo1;
@@ -47,7 +48,7 @@ nodo_t **resorte_obtener_nodos(resorte_t *resorte){
 
 bool resorte_comparar(resorte_t *resorte1, resorte_t *resorte2){
 	//se podría hacer return resorte1 == resorte2 si podemos asegurar que ningun resorte de la malla tiene almacenado mas de un espacio de memoria.
-	return false;
+	return (resorte1 == resorte2);
 }
 
 bool resorte_actualizar(resorte_t *resorte){
@@ -56,7 +57,7 @@ bool resorte_actualizar(resorte_t *resorte){
 	float aux[2];
 	nodo_obtener_posicion(resorte->nodos[0],xn1);
 	nodo_obtener_posicion(resorte->nodos[1],xn2);
-	vector_suma(2,xn1,xn2,aux);	
+	vector_resta(2,xn1,xn2,aux);	
 	resorte->longitud = vector_norma(2, aux);
 	resorte->constante = K_BASE/powf(resorte->longitud, POTENCIA_K);
 	return true; //no me acuerdo por que puse que devolvía bool, lo veré mas adelante.

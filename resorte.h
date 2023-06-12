@@ -1,6 +1,7 @@
 #ifndef RESORTE_H
 #define RESORTE_H
 #include <stdbool.h>
+#include "config.h"
 
 /*
 Muchas de las funciones y el funcionamiento general de este TDA está pensado para que haya otro TDA que se ocupe de administrarlo en conjunto con nodo_t.

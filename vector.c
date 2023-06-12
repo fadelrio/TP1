@@ -13,8 +13,13 @@ void vector_suma(size_t d, const float a[d], const float b[d], float c[d]){
 		c[i] = a[i] + b[i];
 }
 
+void vector_resta(size_t d, const float a[d], const float b[d], float c[d]){
+	for (size_t i = 0; i < d; i++)
+		c[i] = a[i] - b[i];
+}
+
 bool vector_comparar(size_t d, const float a[], const float b[]){
-	for (size_t i = 0, i<d, i++){
+	for (size_t i = 0; i<d; i++){
 		if (a[i] != b[i])
 			return false;	
 	}
