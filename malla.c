@@ -14,10 +14,6 @@ struct malla {
     size_t nnodos;
 };
 
-enum clase{
-    NODO
-    RESORTE
-};
 
 malla_t *malla_crear(){
     malla_t *malla = malloc(sizeof(malla_t));
@@ -130,7 +126,7 @@ void *que_hay_cerca(malla_t *malla, const float pos[2]){
     }
     lista_iter_destruir(nodo_iter);
     lista_iter_destruir(res_iter);
-    return NULL;     
+    return raux;     
 }
 
 
@@ -142,7 +138,6 @@ void *eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
             break;
     }
     nodo = lista_iter_borrar(nodo_iter); //solo hago esta asignación pq lista_iter_borrar no es void
-    nodo_destruir(nodo);
     lista_iter_destruir(nodo_iter);
     return nodo;
 }
