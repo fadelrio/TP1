@@ -91,44 +91,50 @@ static bool visitar_resorte(resorte_t *resorte, float punto[2]){ //nose si esta 
 */
 
 void *que_hay_cerca(malla_t *malla, const float pos[2]){
+    //Si la lista de nodos está vacía implica que también lo está la de resortes
+    if(lista_esta_vacia(malla->nodos)){
+        return NULL;
+    }
+
     //iteramos la lista de nodos y de resortes para saber que es lo que hay más cercano al punto
     lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
-    lista_iter_t *res_iter = lista_iter_crear(malla->resortes);
 
     float mindist = R_CERCANIA, distancia;
-    nodo_t *naux = NULL;
 
     while (!lista_iter_al_final(nodo_iter)){
         distancia = distancia_a_punto(lista_iter_ver_actual(nodo_iter)->posicion, pos);
         if(distancia <= mindist){
-            naux = lista_iter_ver_actual(nodo_iter); /*Yo se que esto es carísimo de hacer pero por 
-            ahora no se me ocurrio otra forma de hacerlo, habria que conseguir el indice del 
-            nodo mas cercano y despues devolver qué nodo hay en ese indice pero las listas enlazadas no tienen indice, 
-            entoces se me ocurre que de alguna forma hay que usar a la funcion lista_recorrer, 
-            puse arriba comentadas como serian las funciones visitar*/
-            mindist = distancia;
+            return (nodo_iter); //Ya si hay un solo nodo en la cercanía del radio, no puede haber 2
+            //No se pueden crear dos nodos a una distancia entre ellos menor a R_CERCANIA, que el usuario no joda
         }
         if(!lista_iter_avanzar(nodo_iter))
             break;
     }
+
+    lista_iter_t *res_iter = lista_iter_crear(malla->resortes);
+    resorte_t *raux = NULL;
     
     while (!lista_iter_al_final(res_iter)){
         distancia = distancia_a_segmento(punto, lista_iter_ver_actual(res_iter));
        
         if(distancia < mindist){ 
-            return lista_iter_ver_actual(res_iter);
-            //Ya si hay un solo resorte más cerca que un nodo a un punto, entonces ese resorte es unico, no hay otro + cerca                       
+            raux = lista_iter_ver_actual(res_iter);
+            mindist = distancia;
+            //Puede haber +1 resortes en un radio de cercanía si el usuario
+            //fue tan hdp de haber creado dos resortes que salen de un nodo y que se 
+            //separan por un angulo muy pequeño? Yencima puede ser tan hdp el usuario de haber
+            //Clickeado jussssto entre los dos resortes??                       
         }
         if(!lista_iter_avanzar(nodo_iter))
             break;
     }
     lista_iter_destruir(nodo_iter);
     lista_iter_destruir(res_iter);
-    return naux;     
+    return NULL;     
 }
 
 
-void eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
+void *eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
     lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
         while (!lista_iter_al_final(nodo_iter)){
 
@@ -136,10 +142,12 @@ void eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
             break;
     }
     nodo = lista_iter_borrar(nodo_iter); //solo hago esta asignación pq lista_iter_borrar no es void
+    nodo_destruir(nodo);
     lista_iter_destruir(nodo_iter);
+    return nodo;
 }
 
-void eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
+void *eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
     lista_iter_t *res_iter = lista_iter_crear(malla->resortes);
         while (!lista_iter_al_final(res_iter)){
 
@@ -148,4 +156,5 @@ void eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
     }
     res = lista_iter_borrar(res_iter); //solo hago esta asignación pq lista_iter_borrar no es void
     lista_iter_destruir(res_iter);
+    return res;
 }
