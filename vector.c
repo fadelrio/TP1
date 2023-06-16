@@ -19,6 +19,14 @@ void vector_resta(size_t d, const float a[d], const float b[d], float c[d]){
 		c[i] = a[i] - b[i];
 }
 
+<<<<<<< HEAD
+bool vector_comparar(size_t d, const float a[], const float b[]){
+	for (size_t i = 0; i<d; i++){
+		if (a[i] != b[i])
+			return false;	
+	}
+	return true;
+
 static void vector_producto_por_escalar(size_t d, const float a[d], const float b[d], float escalar){
 	for (size_t i = 0; i < d; i++)
 		b[i] = a[i] * escalar;
@@ -68,4 +76,7 @@ float distancia_a_segmento(const float punto[], const resorte_t *resorte){
 		distancia = distancia_a_punto(punto, vaux);
 	}
 	return distancia;
+=======
+
+>>>>>>> nodos_y_resortes
 }
