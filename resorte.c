@@ -7,15 +7,11 @@
 
 
 typedef struct resorte{
-<<<<<<< HEAD
-	float longitud;
-	float constante;
-	nodo_t *nodos[2];
-=======
+
 	float longitud;//depende de la posicion de los nodos, se deberá actualizar cuando se modifique la posicion de los nodos
 	float constante;//depende de la longitud, se debera actualizar en los mismos casos en los q se actualice la longitud
 	nodo_t *nodos[2];//PUEDEN SER MODIFICADOS POR FUERA DE LAS FUNCIONES DE RESORTE.H cada vez que se modifiquen se deberá llamar a la función para actualizar
->>>>>>> nodos_y_resortes
+
 } resorte_t;
 
 resorte_t *resorte_crear(nodo_t *nodo1, nodo_t *nodo2){
