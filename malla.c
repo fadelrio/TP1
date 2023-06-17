@@ -12,7 +12,11 @@ struct malla {
     lista_t *resortes;
     size_t nres;
     size_t nnodos;
+	nodo_t *nodo_cercano_actual;
+	resorte_t *resorte_cercano_actual;
 };
+
+
 
 
 malla_t *malla_crear(){

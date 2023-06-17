@@ -36,6 +36,9 @@ void nodo_obtener_posicion(const nodo_t *nodo, float posicion[2]);
 //cambia la posicion actual del nodo
 void nodo_actualizar_posicion(nodo_t *nodo, float posicion[2]);
 
+//devuelve si ambos nodos tienen la misma posicion
+bool nodo_comparar(nodo_t *nodo1, nodo_t *nodo2);
+
 //devuelve si el nodo es fijo o no
 bool nodo_es_fijo(const nodo_t *nodo);
 
