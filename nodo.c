@@ -77,6 +77,10 @@ void nodo_actualizar_posicion(nodo_t *nodo, float posicion[2]){
 	memcpy(nodo->posicion, posicion, 2 * sizeof(float));
 }
 
+bool nodo_comparar(nodo_t *nodo1, nodo_t *nodo2){
+	return (nodo1->posicion[0] == nodo2->posicion[0]) && (nodo1->posicion[1] == nodo2->posicion[1]);
+}
+
 bool nodo_es_fijo(const nodo_t *nodo){
 	return nodo->es_fijo;
 }
