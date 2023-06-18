@@ -26,7 +26,7 @@ void malla_destruir(malla_t *malla);
 bool agregar_nodo_a_malla(malla_t *malla, const float pos[2], bool es_fijo);
 
 //Agrega un resorte a la lista de resortes de la malla|     
-//Pre: hay nodos en las dos posiciones
+//Pre: hay un nodo en posi[], se llamó a que_hay_cerca con posi[] y devolvió NODO 
 //la malla está creada y no es nula
 //Post: el resorte forma parte de la malla
 bool agregar_resorte_a_malla(malla_t *malla, const float posi[2], const float posf[2]);
@@ -49,7 +49,7 @@ bool eliminar_resorte_de_malla(malla_t *malla, const float pos[2]);
 //-----------------------------------------------------
 
 //Mueve un nodo de su posicion actual a pos[]
-//Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula 
+//Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]);
 

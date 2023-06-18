@@ -5,6 +5,7 @@
 #include "resorte.h"
 
 #define R_CERCANIA 20 //POR PONER UN NUMERO
+
 //pense que si ibamos a tratar a los resortes como listas enlazadas, por que no tambien a los nodos? y asi unificamos metodologias
 
 struct malla {
@@ -63,18 +64,44 @@ bool agregar_nodo_a_malla(malla_t *malla, const float pos[2], bool es_fijo){
     return true;
 }
 
-bool agregar_resorte_a_malla(malla_t *malla, nodo_t *nodo1, nodo_t *nodo2){
-    resorte_t *r = resorte_crear(nodo1, nodo2);
+static nodo_t *_agregar_nodo(malla_t *malla, const float pos[2], bool es_fijo){
+	nodo_t *n = nodo_crear(pos, es_fijo);
+    if(!n)
+        return NULL;
+    
+    if(!lista_insertar_primero(malla->nodos, n))
+        return NULL;
+    
+    malla->nnodos++;
+    return n;
+}
+
+bool agregar_resorte_a_malla(malla_t *malla, const float posi[2], const float posf[2]){
+    nodo_t *nodo = _agregar_nodo(malla, posf, false);
+	if (!n)
+		return false;
+	resorte_t *r = resorte_crear(malla->nodo_cercano_actual, nodo);
     if(!r)
         return false;
-    
-    if(!(nodo_agregar_resorte(r, nodo1) 
-        && nodo_agregar_resorte(r, nodo2)
-        && lista_insertar_primero(malla->resortes, r)))
+     
+    if(!nodo_agregar_resorte(r, nodo))
+		return false;
+	if(!nodo_agregar_resorte(r, malla->nodo_cercano_actual)){
+		_eliminar_nodo_de_malla(malla, nodo);
+		return false;
+	}
+
+    if(!lista_insertar_primero(malla->resortes, r)){
+		_eliminar_nodo_de_malla(malla, nodo);
+		nodo_eliminar_resorte(r,malla->nodo_cercano_actual,resorte_comparar);
+		return false;
+	}
 
         return false;
 
+	malla->nodo_cercano_actual = nodo;
     malla->nres++;
+
     return true;
 }
 
@@ -134,7 +161,7 @@ void *que_hay_cerca(malla_t *malla, const float pos[2]){
 }
 
 
-void *eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
+static void _eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
     lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
         while (!lista_iter_al_final(nodo_iter)){
 
@@ -143,7 +170,7 @@ void *eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
     }
     nodo = lista_iter_borrar(nodo_iter); //solo hago esta asignación pq lista_iter_borrar no es void
     lista_iter_destruir(nodo_iter);
-    return nodo;
+	nodo_destruir(nodo);
 }
 
 void *eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
@@ -157,3 +184,28 @@ void *eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
     lista_iter_destruir(res_iter);
     return res;
 }
+//Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
+//Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
+bool mover_nodo(malla_t *malla, const float pos[2]){
+	float aux[];
+	vector_resta(malla->vector_cercano_actual, pos, aux);	
+	if (vector_norma(2, aux) <= R_CERCANIA){
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

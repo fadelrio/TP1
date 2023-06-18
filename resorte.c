@@ -49,7 +49,6 @@ nodo_t **resorte_obtener_nodos(resorte_t *resorte){
 }
 
 bool resorte_comparar(resorte_t *resorte1, resorte_t *resorte2){
-	//se podría hacer return resorte1 == resorte2 si podemos asegurar que ningun resorte de la malla tiene almacenado mas de un espacio de memoria.
 	return (resorte1 == resorte2);
 }
 
