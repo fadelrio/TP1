@@ -125,6 +125,8 @@ static void malla_que_hay_cerca(malla_t *malla, const float pos[2], tipo_t tipo)
     }
 
     lista_iter_destruir(res_iter);
+    malla->nodo_cercano_actual = NULL;
+    malla->resorte_cercano_actual = NULL;
     tipo = NADA;   
 }
 
