@@ -184,15 +184,45 @@ void *eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
     lista_iter_destruir(res_iter);
     return res;
 }
+
+static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo){
+	size_t nres;	
+	nodo_t **nodos = malloc((nres = nodo_obtener_cantidad_de_resortes(nodo))* sizeof(nodo));
+	resorte_t **resortes = nodo_obtener_resortes(nodo);
+	for (size_t i = 0; i < nres; i++){
+		nodo_t **aux = resorte_obtener_nodos(resortes[i]);
+		if (aux[0] == nodo){ //se puede comparar de esta forma porque cada nodo de la malla existe una sola vez en memoria
+			nodos[i] = aux[1];
+			continue;
+		}
+		nodos[i] = aux[0];
+	}
+	return nodos;
+}
+
 //Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]){
-	float aux[];
-	vector_resta(malla->vector_cercano_actual, pos, aux);	
-	if (vector_norma(2, aux) <= R_CERCANIA){
-		
+	if (nodo_obtener_cantidad_de_resortes(nodo_cercano_actual) == 0){
+		nodo_actualizar_posicion(nodo_cercano_actual, pos);
+		return true;
 	}
+	nodo_t **nodos_aledanos = _obtener_nodos_aledanos(nodo_cercano_actual);
+
+	//acá va algo q chequee las distancias
+
+	//actualizacion de resortes
+	resorte_t **resortes = nodo_obtener_resortes(nodo_cercano_actual);
+	size_t nres = nodo_obtener_cantidad_de_resortes(nodo_cercano_actual);
+	
+	for (size_t i = 0; i<nres; i++)
+		resorte_actualizar(resortes[i]);
+	return true;
+	
 }
+
+
+
 
 
 
