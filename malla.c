@@ -41,6 +41,8 @@ malla_t *malla_crear(){
     malla->resortes = resortes;
     malla->nres = 0;
     malla->nnodos = 0;
+    malla->nodo_cercano_actual = NULL;
+    malla->resorte_cercano_actual = NULL;
 
     return malla;
 }
@@ -78,22 +80,11 @@ bool agregar_resorte_a_malla(malla_t *malla, nodo_t *nodo1, nodo_t *nodo2){
     return true;
 }
 
-/*
-static bool visitar_nodo(nodo_t *nodo, float punto[2]){ //nose si esta bien la firma
-    return (distancia_a_punto(nodo->posicion, punto) <= R_CERCANIA);
-}
 
-static bool visitar_resorte(resorte_t *resorte, float punto[2]){ //nose si esta bien la firma
-     //Ahora sí menor estricto pq si resulta que el punto clickeado esta igual de cerca
-     //a un nodo o un resorte, al usuario le borramos el nodo conjunto el resorte por boludo
-    return (distancia_a_segmento(punto, resorte) < R_CERCANIA);
-}
-*/
-
-void *que_hay_cerca(malla_t *malla, const float pos[2]){
+static void malla_que_hay_cerca(malla_t *malla, const float pos[2], tipo_t tipo){
     //Si la lista de nodos está vacía implica que también lo está la de resortes
     if(lista_esta_vacia(malla->nodos)){
-        return NULL;
+        tipo = NADA;
     }
 
     //iteramos la lista de nodos y de resortes para saber que es lo que hay más cercano al punto
@@ -102,58 +93,84 @@ void *que_hay_cerca(malla_t *malla, const float pos[2]){
     float mindist = R_CERCANIA, distancia;
 
     while (!lista_iter_al_final(nodo_iter)){
-        distancia = distancia_a_punto(lista_iter_ver_actual(nodo_iter)->posicion, pos);
+        nodo_t *naux = lista_iter_ver_actual(nodo_iter);
+        distancia = distancia_a_punto(naux->posicion, pos);
         if(distancia <= mindist){
-            return (nodo_iter); //Ya si hay un solo nodo en la cercanía del radio, no puede haber 2
+            tipo = NODO;
+            malla->nodo_cercano_actual = naux;
+            lista_iter_destruir(nodo_iter);
+            //Ya si hay un solo nodo en la cercanía del radio, no puede haber 2
             //No se pueden crear dos nodos a una distancia entre ellos menor a R_CERCANIA, que el usuario no joda
         }
         if(!lista_iter_avanzar(nodo_iter))
             break;
     }
 
+    lista_iter_destruir(nodo_iter);
+
     lista_iter_t *res_iter = lista_iter_crear(malla->resortes);
-    resorte_t *raux = NULL;
     
     while (!lista_iter_al_final(res_iter)){
-        distancia = distancia_a_segmento(punto, lista_iter_ver_actual(res_iter));
+        resorte_t *raux = lista_iter_ver_actual(res_iter);
+        distancia = distancia_a_segmento(punto, raux);
        
-        if(distancia < mindist){ 
-            raux = lista_iter_ver_actual(res_iter);
-            mindist = distancia;
-            //Puede haber +1 resortes en un radio de cercanía si el usuario
-            //fue tan hdp de haber creado dos resortes que salen de un nodo y que se 
-            //separan por un angulo muy pequeño? Yencima puede ser tan hdp el usuario de haber
-            //Clickeado jussssto entre los dos resortes??                       
+        if(distancia < mindist){
+            tipo = RESORTE;
+            malla->resorte_cercano_actual = raux;
+            lista_iter_destruir(res_iter);
         }
+
         if(!lista_iter_avanzar(nodo_iter))
             break;
     }
-    lista_iter_destruir(nodo_iter);
+
     lista_iter_destruir(res_iter);
-    return raux;     
+    tipo = NADA;   
 }
 
+tipo_t malla_tipo_cercano(malla_t *malla, const float pos[2])
+    tipo_t tipo;
+    malla_que_hay_cerca(malla, pos, tipo);
+    return tipo;
 
-void *eliminar_nodo_de_malla(malla_t *malla, nodo_t *nodo){
-    lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
-        while (!lista_iter_al_final(nodo_iter)){
 
-        if(!lista_iter_avanzar(nodo_iter) || nodo_comparar(lista_iter_ver_actual(nodo_iter), nodo)) //Habria q implementar esta funcion
-            break;
-    }
-    nodo = lista_iter_borrar(nodo_iter); //solo hago esta asignación pq lista_iter_borrar no es void
-    lista_iter_destruir(nodo_iter);
-    return nodo;
-}
-
-void *eliminar_resorte_de_malla(malla_t *malla, resorte_t *res){
+static bool malla_eliminar_resorte(malla_t *malla){
     lista_iter_t *res_iter = lista_iter_crear(malla->resortes);
         while (!lista_iter_al_final(res_iter)){
-
-        if(!lista_iter_avanzar(res_iter) || resorte_comparar(lista_iter_ver_actual(res_iter), res))
-            break;
+            if(!lista_iter_avanzar(res_iter) || resorte_comparar(lista_iter_ver_actual(res_iter), res))
+                break;
     }
     res = lista_iter_borrar(res_iter); //solo hago esta asignación pq lista_iter_borrar no es void
     lista_iter_destruir(res_iter);
-    return res;
+    resorte_destruir(res);
+    return true;
 }
+
+static bool malla_eliminar_nodo(malla_t *malla){
+    lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
+    while (!lista_iter_al_final(nodo_iter)){
+        if(!lista_iter_avanzar(nodo_iter) || nodo_comparar(lista_iter_ver_actual(nodo_iter), malla->nodo_cercano_actual)) //Habria q implementar esta funcion
+            break;
+    }
+
+    nodo_t *naux = lista_iter_borrar(nodo_iter); //solo hago esta asignación pq lista_iter_borrar no es void
+    bool estado = true; 
+    for(size_t i = 0; i < naux->nres; i++){
+        if(!eliminar_resorte_de_malla(malla, naux->resortes[i])) //nose si esta bien escrito nodo->resortes[i]
+            estado = false;
+    }
+
+    nodo_destruir(naux);
+    lista_iter_destruir(nodo_iter);
+    return estado;
+}
+
+feliminar_t funciones_eliminar[] = {malla_eliminar_nodo, malla_eliminar_resorte};
+
+bool malla_eliminar_elemento(malla_t *malla, tipo_t tipo){
+    /*feliminar_t funcion = funciones_eliminar[tipo];
+    return funcion(malla);*/
+    return funciones_eliminar[tipo](malla); //ta bien asi o es como lo anterior?
+}
+
+

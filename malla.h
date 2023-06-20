@@ -7,7 +7,9 @@
 
 typedef struct malla malla_t;
 
-typedef enum tipo {NODO,RESORTE} tipo_t;
+typedef enum tipo {NODO,RESORTE,NADA} tipo_t;
+
+typedef bool (*feliminar_t)(malla_t);
 
 //Crea y devuelve por nombre una malla con sus miembros inicializados
 //segun el invariante de representacion de listas enlazadas
@@ -32,20 +34,33 @@ bool agregar_nodo_a_malla(malla_t *malla, const float pos[2], bool es_fijo);
 bool agregar_resorte_a_malla(malla_t *malla, const float posi[2], const float posf[2]);
 
 //VALEN
-//Indica que hay en la cercania de un radio R_CERCANIA
+
+//Funcion interna que actualiza los valores miembros de malla nodo_cercano_actual y resorte_cercano_actual y el tipo que corresponda, segun que es lo que haya cerca
+//Pre:
+//Post: 
+static void malla_que_hay_cerca(malla_t *malla, const float pos[2], tipo_t tipo);
+
+
+//Indica de qué tipo es el elemento hay en la cercania de un radio R_CERCANIA, es un wrapper de malla_que_hay_cerca
 //Pre: La malla fue creada y no hay dos nodos cuya distancia entre sí sea menor a R_CERCANIA
 //Post: Devuelve una etiqueta del tipo que se encontró mas cerca, en el caso de resorte, puede haber mas de un elemento cerca, devuelve 0 si no se encontró nada
-tipo_t que_hay_cerca(malla_t *malla, const float pos[2]);
+tipo_t malla_tipo_cercano(malla_t *malla, const float pos[2]);
 
-//Elimina un nodo de la lista de nodos de la malla pero no se ocupa de destruir el nodo
+//Elimina un nodo de la lista de nodos de la malla y se ocupa de destruir el nodo y sus resortes asociados
 //Pre: la posicion se encuentra a menos de R_CERCANIA de distancia, antes de llamar a esta función se llamó a que_hay_cerca.
 //Post: el nodo ya no forma parte de la malla
-bool eliminar_nodo_de_malla(malla_t *malla, const float pos[2]);
+static bool malla_eliminar_nodo(malla_t *malla);
 
-//Elimina un resorte de la lista de resortes de la malla pero no se ocupa de destruir el resorte
+//Elimina un resorte de la lista de resortes de la malla y se ocupa de destruir el resorte
 //Pre: la posicion se encuentra a menos de R_CERCANIA de distancia, antes de llamar a esta función se llamó a que_hay_cerca.
 //Post: el resorte ya no forma parte de la malla
-bool eliminar_resorte_de_malla(malla_t *malla, const float pos[2]);
+static bool malla_eliminar_resorte(malla_t *malla);
+
+//Elimina de la lista de elementos correspondientes al elemento del tipo indicado
+//Pre: La malla está creada, la función no se llama si el nodo es fijo, se llamó antes a la funcion 
+//malla_tipo_cercano para pasar como argumento el tipo, y el mismo no podrá ser NADA
+//Post: Se elimina al elemento cuyo tipo fue indicado
+bool malla_eliminar_elemento(malla_t *malla, tipo_t tipo);
 //-----------------------------------------------------
 
 //Mueve un nodo de su posicion actual a pos[]
