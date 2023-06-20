@@ -53,7 +53,7 @@ void malla_destruir(malla_t *malla){
     free(malla);
 }
 
-bool agregar_nodo_a_malla(malla_t *malla, const float pos[2], bool es_fijo){
+bool agregar_nodo_a_malla(malla_t *malla, const float pos[], bool es_fijo){
     nodo_t *n = nodo_crear(pos, es_fijo);
     if(!n)
         return false;
@@ -81,7 +81,7 @@ bool agregar_resorte_a_malla(malla_t *malla, nodo_t *nodo1, nodo_t *nodo2){
 }
 
 
-static void malla_que_hay_cerca(malla_t *malla, const float pos[2], tipo_t tipo){
+static void malla_que_hay_cerca(malla_t *malla, const float pos[], tipo_t tipo){
     //Si la lista de nodos está vacía implica que también lo está la de resortes
     if(lista_esta_vacia(malla->nodos)){
         tipo = NADA;
@@ -130,7 +130,7 @@ static void malla_que_hay_cerca(malla_t *malla, const float pos[2], tipo_t tipo)
     tipo = NADA;   
 }
 
-tipo_t malla_tipo_cercano(malla_t *malla, const float pos[2])
+tipo_t malla_tipo_cercano(malla_t *malla, const float pos[])
     tipo_t tipo;
     malla_que_hay_cerca(malla, pos, tipo);
     return tipo;
