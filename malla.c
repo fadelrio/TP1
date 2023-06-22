@@ -210,15 +210,17 @@ static nodo_t *_obtener_nodo_mas_lejano(size_t n, nodo_t **nodos, const float po
 	return nodo_mas_lejano; 
 }
 
+
+
 //Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]){
-	size_t nres = nodo_obtener_cantidad_de_resortes(nodo_cercano_actual);
+	size_t nres = nodo_obtener_cantidad_de_resortes(malla->nodo_cercano_actual);
 	if (nres == 0){
-		nodo_actualizar_posicion(nodo_cercano_actual, pos);
+		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos);
 		return true;
 	}
-	nodo_t **nodos_aledanos = _obtener_nodos_aledanos(nodo_cercano_actual);
+	nodo_t **nodos_aledanos = _obtener_nodos_aledanos(malla->nodo_cercano_actual);
 	if (nodos_aledanos == NULL)
 		return false;
 	
@@ -231,7 +233,7 @@ bool mover_nodo(malla_t *malla, const float pos[2]){
 	}
 	
 	if (distancia_a_punto(nodo_en_uso, pos) <= L0_MAX){
-		nodo_actualizar_posicion(nodo_en_uso, pos)
+		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos)
 	}else{															//planteo algebraico para encontrar un punto a distancia L0_MAX en la recta que 
 		float nodo_pos[] = nodo_obtener_posicion(nodo_en_uso);		//conecta al nodo con pos
 		float aux[];
@@ -241,18 +243,49 @@ bool mover_nodo(malla_t *malla, const float pos[2]){
 		vector_producto_por_escalar(2, aux, producto, escalar);
 		float pos_final[];
 		vector_suma(2, producto, nodo_pos, pos_final);
-		nodo_actualizar_posicion(nodo_en_uso, pos_final);
+		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos_final);
 	}
 		
 	//actualizacion de resortes
-	resorte_t **resortes = nodo_obtener_resortes(nodo_cercano_actual);
-	size_t nres = nodo_obtener_cantidad_de_resortes(nodo_cercano_actual);
+	resorte_t **resortes = nodo_obtener_resortes(malla->nodo_cercano_actual);
+	size_t nres = nodo_obtener_cantidad_de_resortes(malla->nodo_cercano_actual);
 	
 	for (size_t i = 0; i<nres; i++)
 		resorte_actualizar(resortes[i]);
 	free(nodos_aledanos);
 	return true;
 	
+}
+
+void finalizar_mover_nodo(malla_t *malla){
+	lista_iter_t *iter = lista_iter_crear(malla->nodos);
+	bool condicion;
+	nodo_t *nodo_actual;
+	do {
+		nodo_actual = lista_iter_ver_actual(iter);
+		condicion = (distancia_a_punto(malla->nodo_cercano_actual, nodo_actual) < R_CERCANIA);
+		if (condicion && (nodo_actual != malla->nodo_cercano_actual))
+			break;
+	}while (lista_iter_avanzar(iter));
+	//pasar resortes de nodo_cercano_actual a nodo_actual y borrar nodo_cercano_actual. si lista iter no esta al final
+	if (lista_iter_al_final(iter)){
+		lista_iter_destruir(iter);
+		return;
+	}
+	resorte_t **resortes = nodo_obtener_resortes(malla->nodo_cercano_actual);
+	size_t nres = nodo_obtener_cantidad_de_resortes(malla->nodo_cercano_actual);
+	for (size_t i = 0; i < nres; i++){
+		nodo_agregar_resorte(resortes[i], nodo_actual);
+		nodo_t **nodos_resorte = resorte_obtener_nodos(resortes[i]);
+		if (nodos_resorte[0] == malla->nodo_cercano_actual){
+			nodos_resorte[0] = nodo_actual;		
+		}else {
+			nodos_resorte[1] = nodo_actual;	
+		}
+		resorte_actualizar(resortes[i]);
+	}
+	nodo_destruir(malla->nodo_cercano_actual);
+	malla->nodo_cercano_actual = NULL;
 }
 
 

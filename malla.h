@@ -53,6 +53,11 @@ bool eliminar_resorte_de_malla(malla_t *malla, const float pos[2]);
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]);
 
+//Se debe ejecutar despues de la ultima llamada para un nodo a mover_nodo, se ocupa de que no queden nodos superpuestos. Despues de llamarla se deberá llamar a que_hay_cerca nuevamente para mover un nodo 
+//Pre: se llamó a mover_nodo al menos una vez
+//Post: no quedan nodos superpuestos y no se puede volver a llamar a mover_nodo sin llamar a que_hay_cerca
+void finalizar_mover_nodo(malla_t *malla);
+
 
 
 #endif
