@@ -25,13 +25,13 @@ bool vector_comparar(size_t d, const float a[], const float b[]){
 			return false;	
 	}
 	return true;
-
-static void vector_producto_por_escalar(size_t d, const float a[d], const float b[d], float escalar){
+}
+void vector_producto_por_escalar(size_t d, const float a[d], float b[d], float escalar){
 	for (size_t i = 0; i < d; i++)
 		b[i] = a[i] * escalar;
 }
 
-static float producto_interno(size_t d, const float a[], const float b[]){
+float producto_interno(size_t d, const float a[d], const float b[d]){
 	float pi = 0;
 	for(size_t i = 0; i < d; i++){
 		pi += a[i]*b[i];
@@ -39,7 +39,7 @@ static float producto_interno(size_t d, const float a[], const float b[]){
 	return pi;
 }
 
-static float parametro_distancia(const float a[], const resorte_t *resorte){
+/*static float parametro_distancia(const float a[], const resorte_t *resorte){
 	float vaux[2];
 	float vaux2[2];
 	vector_resta(2, a, restorte->nodos[0], vaux);
@@ -47,14 +47,14 @@ static float parametro_distancia(const float a[], const resorte_t *resorte){
 
 	return producto_interno(2, vaux, vaux2) / pow(vector_norma(vaux2, 2));
 }
-
+*/
 float distancia_a_punto(const float p1[], const float p2[]){
 	float vaux[2];
 	vector_resta(2, p1, p2, vaux);
 	return vector_norma(2, vaux);
 }
 
-float distancia_a_segmento(const float punto[], const resorte_t *resorte){
+/*float distancia_a_segmento(const float punto[], const resorte_t *resorte){
 	float alpha = parametro_distancia(punto, resorte), distancia;
 
 	if(alpha <= 0){
@@ -76,4 +76,4 @@ float distancia_a_segmento(const float punto[], const resorte_t *resorte){
 	}
 	return distancia;
 
-}
+}*/

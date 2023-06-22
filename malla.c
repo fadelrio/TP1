@@ -200,23 +200,57 @@ static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo){
 	return nodos;
 }
 
+//n > 1, nodos, pos != NULL
+static nodo_t *_obtener_nodo_mas_lejano(size_t n, nodo_t **nodos, const float pos[]){
+	nodo_t nodo_mas_lejano = nodos[0];
+	for (size_t i = 1; i < n; i++){
+		if (distancia_a_punto(nodo_obtener_posicion(nodos[i]), pos[]) > distancia_a_punto(nodo_obtener_posicion(nodo_mas_lejano), pos[]))
+			nodo_mas_lejano = nodos[i];
+	}
+	return nodo_mas_lejano; 
+}
+
 //Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]){
-	if (nodo_obtener_cantidad_de_resortes(nodo_cercano_actual) == 0){
+	size_t nres = nodo_obtener_cantidad_de_resortes(nodo_cercano_actual);
+	if (nres == 0){
 		nodo_actualizar_posicion(nodo_cercano_actual, pos);
 		return true;
 	}
 	nodo_t **nodos_aledanos = _obtener_nodos_aledanos(nodo_cercano_actual);
+	if (nodos_aledanos == NULL)
+		return false;
+	
 
-	//acá va algo q chequee las distancias
-
+	nodo_t *nodo_en_uso;	
+	if (nres == 1){
+		nodo_en_uso = nodos[0];	
+	}else{
+		nodo_en_uso = _obtener_nodo_mas_lejano(nres, nodos, pos);
+	}
+	
+	if (distancia_a_punto(nodo_en_uso, pos) <= L0_MAX){
+		nodo_actualizar_posicion(nodo_en_uso, pos)
+	}else{															//planteo algebraico para encontrar un punto a distancia L0_MAX en la recta que 
+		float nodo_pos[] = nodo_obtener_posicion(nodo_en_uso);		//conecta al nodo con pos
+		float aux[];
+		vector_resta(2, pos, nodo_pos, aux);
+		float escalar = (L0_max)/(vector_norma(2, aux));
+		float producto[];
+		vector_producto_por_escalar(2, aux, producto, escalar);
+		float pos_final[];
+		vector_suma(2, producto, nodo_pos, pos_final);
+		nodo_actualizar_posicion(nodo_en_uso, pos_final);
+	}
+		
 	//actualizacion de resortes
 	resorte_t **resortes = nodo_obtener_resortes(nodo_cercano_actual);
 	size_t nres = nodo_obtener_cantidad_de_resortes(nodo_cercano_actual);
 	
 	for (size_t i = 0; i<nres; i++)
 		resorte_actualizar(resortes[i]);
+	free(nodos_aledanos);
 	return true;
 	
 }
