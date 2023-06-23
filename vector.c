@@ -9,12 +9,12 @@ float vector_norma(size_t d, const float v[d]){
 	return sqrt(norma);
 }
 
-void vector_suma(size_t d, const float a[d], const float b[d], float c[d]){
+void vector_suma(size_t d, const float a[], const float b[], float c[]){
 	for (size_t i = 0; i < d; i++)
 		c[i] = a[i] + b[i];
 }
 
-void vector_resta(size_t d, const float a[d], const float b[d], float c[d]){
+void vector_resta(size_t d, const float a[], const float b[], float c[]){
 	for (size_t i = 0; i < d; i++)
 		c[i] = a[i] - b[i];
 }
@@ -24,9 +24,10 @@ bool vector_comparar(size_t d, const float a[], const float b[]){
 		if (a[i] != b[i])
 			return false;	
 	}
-	return true;
+	return true
+}
 
-static void vector_producto_por_escalar(size_t d, const float a[d], const float b[d], float escalar){
+static void vector_producto_por_escalar(size_t d, const float a[], const float b[], float escalar){
 	for (size_t i = 0; i < d; i++)
 		b[i] = a[i] * escalar;
 }
@@ -39,13 +40,13 @@ static float producto_interno(size_t d, const float a[], const float b[]){
 	return pi;
 }
 
-static float parametro_distancia(const float a[], const resorte_t *resorte){
+static float parametro_distancia(const float a[], const float posi[], const float posf[]){
 	float vaux[2];
 	float vaux2[2];
-	vector_resta(2, a, restorte->nodos[0], vaux);
-	vector_resta(2, resorte->nodos[0], restorte->nodos[1], vaux2);
+	vector_resta(2, a, posi, vaux);
+	vector_resta(2, posi, posf, vaux2);
 
-	return producto_interno(2, vaux, vaux2) / pow(vector_norma(vaux2, 2));
+	return producto_interno(2, vaux, vaux2) / pow(vector_norma(2, vaux2));
 }
 
 float distancia_a_punto(const float p1[], const float p2[]){
@@ -54,24 +55,24 @@ float distancia_a_punto(const float p1[], const float p2[]){
 	return vector_norma(2, vaux);
 }
 
-float distancia_a_segmento(const float punto[], const resorte_t *resorte){
-	float alpha = parametro_distancia(punto, resorte), distancia;
+float distancia_a_segmento(const float punto[], const float posi[], const float posf[]){
+	float alpha = parametro_distancia(punto, posi, posf), distancia;
 
 	if(alpha <= 0){
 		//primer nodo es el mas cercano a punto
-		distancia = distancia_a_punto(punto, resorte->nodos[0]);
+		distancia = distancia_a_punto(punto, posi);
 	}
 	else if(alpha >= 1){
 		//segundo nodo es el mas cercano al punto
-		distancia = distancia_a_punto(punto, resorte->nodos[1]);
+		distancia = distancia_a_punto(punto, posf);
 	}
 	else{
 		//el punto mas cercano es nodo0 + alpha*(nodo1- nodo0)
 		float vaux[2];
-		vector_resta(2, resorte->nodos[1], resorte->nodos[0], vaux);
+		vector_resta(2, posf, posi, vaux);
 		float vaux2[2];
 		vector_producto_por_escalar(2, vaux, vaux2, alpha);
-		vector_suma(2, resorte->nodos[0], vaux2, vaux);
+		vector_suma(2, posi, vaux2, vaux);
 		distancia = distancia_a_punto(punto, vaux);
 	}
 	return distancia;

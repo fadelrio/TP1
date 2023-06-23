@@ -85,6 +85,7 @@ static void malla_que_hay_cerca(malla_t *malla, const float pos[], tipo_t tipo){
     //Si la lista de nodos está vacía implica que también lo está la de resortes
     if(lista_esta_vacia(malla->nodos)){
         tipo = NADA;
+        return;
     }
 
     //iteramos la lista de nodos y de resortes para saber que es lo que hay más cercano al punto
@@ -112,7 +113,8 @@ static void malla_que_hay_cerca(malla_t *malla, const float pos[], tipo_t tipo){
     
     while (!lista_iter_al_final(res_iter)){
         resorte_t *raux = lista_iter_ver_actual(res_iter);
-        distancia = distancia_a_segmento(punto, raux);
+        float posiciones[2][2] = resorte_obtener_nodos(raux)
+        distancia = distancia_a_segmento(punto, posiciones[0], posiciones[1]);
        
         if(distancia < mindist){
             tipo = RESORTE;
