@@ -62,6 +62,25 @@ void simulador_destruir(simulador_t *simulador){
 	free(simulador);
 }
 
+void simulador_simular(simulador_t *sim, float dt){
+	sim->sim++;
+	for (size_t i = 0;i < sim->n_nodos, i++){
+		_simular_nodo(sim->sim, sim->nodos_sin_resortes_simulados, sim->masa, dt);
+	}
+	for (size_t i = 0;i < sim->n_resortes, i++){
+		_simular_resorte(sim->sim, sim->resortes_simulados, sim->masa, dt);
+	}
+}
+
+
+void _simular_nodo(size_t sim, nodo_simulado_t *nodo_sim, float masa, float dt){
+	if (nodo_sim->sim == sim)
+		return;
+	float a = (masa/(dt*dt)) + B/dt;
+	if (nodo_es_fijo(nodo_sim->nodo)){
+	}
+		
+}
 
 
 
