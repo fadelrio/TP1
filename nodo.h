@@ -34,7 +34,7 @@ size_t nodo_obtener_cantidad_de_resortes(const nodo_t *nodo);
 void nodo_obtener_posicion(const nodo_t *nodo, float posicion[2]);
 
 //cambia la posicion actual del nodo
-void nodo_actualizar_posicion(nodo_t *nodo, float posicion[2]);
+void nodo_actualizar_posicion(nodo_t *nodo,const float posicion[2]);
 
 //devuelve si ambos nodos tienen la misma posicion
 bool nodo_comparar(nodo_t *nodo1, nodo_t *nodo2);

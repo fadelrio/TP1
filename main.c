@@ -2,6 +2,7 @@
 #include <stdbool.h>
 
 #include "config.h"
+#include "malla.h"
 
 #ifdef TTF
 #include <SDL2/SDL_ttf.h>

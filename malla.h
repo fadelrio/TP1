@@ -56,7 +56,7 @@ void malla_eliminar_elemento(malla_t *malla, tipo_t tipo);
 //Mueve un nodo de su posicion actual a pos[]
 //Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
-bool mover_nodo(malla_t *malla, const float pos[]);
+bool mover_nodo(malla_t *malla, const float pos[2]);
 
 //Se debe ejecutar despues de la ultima llamada para un nodo a mover_nodo, se ocupa de que no queden nodos superpuestos. Despues de llamarla se deberá llamar a que_hay_cerca nuevamente para mover un nodo 
 //Pre: se llamó a mover_nodo al menos una vez

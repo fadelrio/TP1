@@ -75,7 +75,7 @@ void nodo_obtener_posicion(const nodo_t *nodo, float posicion[2]){
 	posicion[1] = nodo->posicion[1];
 }
 
-void nodo_actualizar_posicion(nodo_t *nodo, float posicion[2]){
+void nodo_actualizar_posicion(nodo_t *nodo,const float posicion[2]){
 	//memcpy(nodo->posicion, posicion, 2 * sizeof(float));
 	nodo->posicion[0] = posicion[0];
 	nodo->posicion[1] = posicion[1];

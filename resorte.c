@@ -1,17 +1,17 @@
 #include "resorte.h"
 #include "vector.h"
-#include "math.h"
+#include <math.h>
 #include <stdlib.h>
 
 
 
-typedef struct resorte{
+struct resorte{
 
 	float longitud;//depende de la posicion de los nodos, se deberá actualizar cuando se modifique la posicion de los nodos
 	float constante;//depende de la longitud, se debera actualizar en los mismos casos en los q se actualice la longitud
 	nodo_t *nodos[2];//PUEDEN SER MODIFICADOS POR FUERA DE LAS FUNCIONES DE RESORTE.H cada vez que se modifiquen se deberá llamar a la función para actualizar
 
-} resorte_t;
+};
 
 resorte_t *resorte_crear(nodo_t *nodo1, nodo_t *nodo2){
 	resorte_t *r = malloc(sizeof(resorte_t));
@@ -63,7 +63,11 @@ bool resorte_actualizar(resorte_t *resorte){
 }
 
 bool resorte_es_ganador(resorte_t *resorte){
-	float longitud_actual = distancia_a_punto(nodo_obtener_posicion(resorte->nodos[0]), nodo_obtener_posicion(resorte->nodos[1]));
+	float pos0[2];
+	nodo_obtener_posicion(resorte->nodos[0],pos0);
+	float pos1[2];
+	nodo_obtener_posicion(resorte->nodos[1],pos1);
+	float longitud_actual = distancia_a_punto(pos0, pos1);
 	return ((longitud_actual/resorte->longitud - 1.0) < MAXIMO_ESTIRAMIENTO);
 }
 

@@ -9,17 +9,17 @@ float vector_norma(size_t d, const float v[d]){
 	return sqrt(norma);
 }
 
-void vector_suma(size_t d, const float a[], const float b[], float c[]){
+void vector_suma(size_t d, const float a[d], const float b[d], float c[d]){
 	for (size_t i = 0; i < d; i++)
 		c[i] = a[i] + b[i];
 }
 
-void vector_resta(size_t d, const float a[], const float b[], float c[]){
+void vector_resta(size_t d, const float a[d], const float b[d], float c[d]){
 	for (size_t i = 0; i < d; i++)
 		c[i] = a[i] - b[i];
 }
 
-bool vector_comparar(size_t d, const float a[], const float b[]){
+bool vector_comparar(size_t d, const float a[d], const float b[d]){
 	for (size_t i = 0; i<d; i++){
 		if (a[i] != b[i])
 			return false;	
@@ -52,7 +52,7 @@ static float parametro_distancia(const float a[], const float posi[], const floa
 	vector_resta(2, a, posi, vaux);
 	vector_resta(2, posi, posf, vaux2);
 
-	return producto_interno(2, vaux, vaux2) / pow(vector_norma(2, vaux2));
+	return producto_interno(2, vaux, vaux2) / powf(vector_norma(2, vaux2), 2.0);
 }
 
 float distancia_a_punto(const float p1[], const float p2[]){

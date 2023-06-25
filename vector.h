@@ -6,17 +6,15 @@
 
 
 //devuelve la norma de el vector
-float vector_norma(size_t d,const float v[]);
+float vector_norma(size_t d,const float v[d]);
 
 //devuelve por interfaz la suma de los vectores a y b en el vector c
-void vector_suma(size_t d, const float a[], const float b[], float c[]);
+void vector_suma(size_t d, const float a[d], const float b[d], float c[d]);
 
-void vector_resta(size_t d, const float a[d], float b[d], float c[d]);
-
-bool vector_comparar(size_t d, const float a[], const float b[]);
+bool vector_comparar(size_t d, const float a[d], const float b[d]);
 
 //devuelve por interfaz la resta de los vectores a y b en el vector c
-void vector_resta(size_t d, const float a[d], const float b[d], float c[]);
+void vector_resta(size_t d, const float a[d], const float b[d], float c[d]);
 
 //devuelve por interfaz la suma de los vectores a y b en el vector c
 void vector_producto_por_escalar(size_t d, const float a[d], float b[d], float escalar);
