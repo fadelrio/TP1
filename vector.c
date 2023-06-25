@@ -26,6 +26,12 @@ bool vector_comparar(size_t d, const float a[], const float b[]){
 	}
 	return true;
 }
+
+void vector_producto_por_escalar_ons(size_t d, float a[d], float escalar){
+	for (size_t i = 0; i < d; i++)
+		a[i] *= escalar;
+}
+
 void vector_producto_por_escalar(size_t d, const float a[d], float b[d], float escalar){
 	for (size_t i = 0; i < d; i++)
 		b[i] = a[i] * escalar;

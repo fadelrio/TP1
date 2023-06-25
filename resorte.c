@@ -60,6 +60,11 @@ bool resorte_actualizar(resorte_t *resorte){
 	nodo_obtener_posicion(resorte->nodos[1],xn2);
 	vector_resta(2,xn1,xn2,aux);	
 	resorte->longitud = vector_norma(2, aux);
-	resorte->constante = K_BASE/powf(resorte->longitud, POTENCIA_K);
 	return true; //no me acuerdo por que puse que devolvía bool, lo veré mas adelante.
 }
+
+bool resorte_es_ganador(resorte_t *resorte){
+	float longitud_actual = distancia_a_punto(nodo_obtener_posicion(resorte->nodos[0]), nodo_obtener_posicion(resorte->nodos[1]));
+	return ((longitud_actual/resorte->longitud - 1.0) < MAXIMO_ESTIRAMIENTO);
+}
+

@@ -24,6 +24,9 @@ void vector_producto_por_escalar(size_t d, const float a[d], float b[d], float e
 //devuelve por nombre el producto interno/escalar de a y b
 float producto_interno(size_t d, const float a[d], const float b[d]);
 
+//realiza un producto por escalar on site(sobre el mismo vector)
+void vector_producto_por_escalar_ons(size_t d, float a[d], float escalar);
+
 //devuelve por nombre el parametro alpha que define que punto de un resorte es el mas cercano a "a"
 //static float parametro_distancia(const float a[], const resorte_t *resorte);
 

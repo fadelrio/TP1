@@ -31,4 +31,7 @@ bool resorte_comparar(resorte_t *resorte1, resorte_t *resorte2);
 //actualiza datos internos del resorte, se debe ejecutar cada vez que se realice una actualizacion a las masas a las que esta sujeto el resorte
 bool resorte_actualizar(resorte_t *resorte);
 
+//devuelve si la longitud de el resorte no es mas de MAXIMO_ESTIRAMIENTO% respecto a la longitud inicial
+bool resorte_es_ganador(resorte_t *resorte);
+
 #endif

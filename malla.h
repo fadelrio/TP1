@@ -4,6 +4,7 @@
 #include "nodo.h"
 #include "resorte.h"
 #include <stddef.h>
+#include <SDL2/SDL.h>
 
 typedef struct malla malla_t;
 
@@ -57,6 +58,27 @@ bool mover_nodo(malla_t *malla, const float pos[2]);
 //Pre: se llamó a mover_nodo al menos una vez
 //Post: no quedan nodos superpuestos y no se puede volver a llamar a mover_nodo sin llamar a que_hay_cerca
 void finalizar_mover_nodo(malla_t *malla);
+
+//Devuelve si la malla ingresada es ganadora o no (las longitudes de los resortes no son mas de MAXIMO_ESTIRAMIENTO% respecto a la longitud inicial)
+//Devolverá true siempre si nunca se simuló la malla
+//Pre: malla no es NULL
+//Post: 
+bool es_ganadora(malla_t *malla);
+
+//Grafica la malla según un graficador de SDL
+//Pre: ni malla ni renderer sonn NULL
+//Post: se mostró la malla en pantalla
+void malla_graficar(SDL_Renderer *renderer, malla_t *malla);
+
+//prepara todo para poder llamar a malla_simular()
+//Pre: malla no es null
+//Post: se puede llamar a malla_simular()
+void malla_iniciar_simulacion(malla_t *malla);
+
+//Simula el sistema masas-resortes de la malla
+//Pre: se llamó (una vez, al principio) a malla_iniciar_simulacion()
+//Post: se simuló un instante dt de el sistema
+void malla_simular(malla_t *malla);
 
 
 

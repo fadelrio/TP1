@@ -70,12 +70,17 @@ size_t nodo_obtener_cantidad_de_resortes(const nodo_t *nodo){
 }
 
 void nodo_obtener_posicion(const nodo_t *nodo, float posicion[2]){
-	memcpy(posicion, nodo->posicion, 2 * sizeof(float));
+	//memcpy(posicion, nodo->posicion, 2 * sizeof(float));
+	posicion[0] = nodo->posicion[0];
+	posicion[1] = nodo->posicion[1];
 }
 
 void nodo_actualizar_posicion(nodo_t *nodo, float posicion[2]){
-	memcpy(nodo->posicion, posicion, 2 * sizeof(float));
+	//memcpy(nodo->posicion, posicion, 2 * sizeof(float));
+	nodo->posicion[0] = posicion[0];
+	nodo->posicion[1] = posicion[1];
 }
+
 
 bool nodo_comparar(nodo_t *nodo1, nodo_t *nodo2){
 	return (nodo1->posicion[0] == nodo2->posicion[0]) && (nodo1->posicion[1] == nodo2->posicion[1]);

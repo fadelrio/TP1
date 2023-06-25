@@ -3,6 +3,7 @@
 #include "nodo.h"
 #include "vector.h"
 #include "resorte.h"
+#include "simulador.h"
 
 #define R_CERCANIA 20 //POR PONER UN NUMERO
 
@@ -15,9 +16,8 @@ struct malla {
     size_t nnodos;
 	nodo_t *nodo_cercano_actual;
 	resorte_t *resorte_cercano_actual;
+	simulador_t *simulador;
 };
-
-
 
 
 malla_t *malla_crear(){
@@ -40,6 +40,7 @@ malla_t *malla_crear(){
 
     malla->nodos = nodos;
     malla->resortes = resortes;
+    malla->simulador = NULL;
     malla->nres = 0;
     malla->nnodos = 0;
 
@@ -49,6 +50,7 @@ malla_t *malla_crear(){
 void malla_destruir(malla_t *malla){
     lista_destruir(malla->nodos, nodo_destruir);
     lista_destruir(malla->resortes, resorte_destruir);
+    simulador_destruir(malla->simulador);
     free(malla);
 }
 
@@ -215,6 +217,8 @@ static nodo_t *_obtener_nodo_mas_lejano(size_t n, nodo_t **nodos, const float po
 //Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]){
+	if (nodo_es_fijo(nodo_cercano_actual))
+		return false;
 	size_t nres = nodo_obtener_cantidad_de_resortes(malla->nodo_cercano_actual);
 	if (nres == 0){
 		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos);
@@ -288,10 +292,65 @@ void finalizar_mover_nodo(malla_t *malla){
 	malla->nodo_cercano_actual = NULL;
 }
 
+bool es_ganadora(malla_t *malla){
+	bool es_g;
+	lista_recorrer(malla->resortes, _resorte_es_ganador_visitar, &es_g);
+	return es_g && !lista_esta_vacia(malla->resortes);
+}
 
 
+static bool _resorte_es_ganador_visitar(void *resorte, void *es_ganador){
+	resorte_t *res = resorte;
+	bool *es_g = es_ganador;
+	*es_g = resorte_es_ganador(res);
+	return *es_g;
+}
 
+void malla_graficar(SDL_Renderer *renderer, malla_t *malla){
+	lista_recorrer(malla->nodos, _graficar_nodo, ren);
+	lista_recorrer(malla->resortes, _graficar_resorte, ren);
+}
 
+static bool _graficar_nodo(void *nodo, void *renderer){
+	SDL_Renderer *ren = renderer;
+	nodo_t *n = nodo;
+	float pos[2];
+	nodo_obtener_posicion(nodo, pos);
+	vector_producto_por_escalar_ons(2, pos, 50);
+	if (nodo_es_fijo(nodo)){
+		SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0x00);
+	}else
+		SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00);
+	float ancho = 10;
+	SDL_Rect r1 = {pos[0] - ancho/2, pos[1] - ancho/2, ancho, ancho};
+	SDL_RenderDrawRect(ren, &r1);
+	return true;
+}
+
+static bool _graficar_resorte(void *resorte, void *renderer){
+	SDL_Renderer *ren = renderer;
+	resorte_t *res = resorte;
+	float pos1[2];
+	float pos2[2];
+	nodo_t **nodos = resorte_obtener_nodos(resorte);
+	nodo_obtener_posicion(nodos[0], pos1);
+	nodo_obtener_posicion(nodos[1], pos2);
+	vector_producto_por_escalar_ons(2, pos1, 50);
+	vector_producto_por_escalar_ons(2, pos2, 50);
+	if(resorte_es_ganador(resorte)){
+		SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0xFF, 0x00);
+	}else
+		SDL_SetRenderDrawColor(ren, 0xFF, 0x00, 0x00, 0x00);
+	SDL_RenderDrawLine(ren, pos1[0], pos1[1], pos2[0], pos2[1]);
+}
+
+void malla_iniciar_simulacion(malla_t *malla){
+	malla->simulador = simulador_crear(malla->nodos, malla->resortes);
+}
+
+void malla_simular(malla_t *malla){
+	simulador_simular(malla->simulador, DT);
+}
 
 
 
