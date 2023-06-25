@@ -7,8 +7,6 @@
 Muchas de las funciones y el funcionamiento general de este TDA está pensado para que haya otro TDA que se ocupe de administrarlo en conjunto con nodo_t.
 */
 
-typedef struct resorte resorte_t;
-typedef struct nodo nodo_t;
 
 //nodo1 y nodo2 no pueden ser NULL
 resorte_t *resorte_crear( nodo_t *nodo1, nodo_t *nodo2);

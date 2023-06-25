@@ -12,7 +12,7 @@ struct nodo{
 };
 
 
-nodo_t *nodo_crear(float posicion[2], bool es_fijo){
+nodo_t *nodo_crear(const float posicion[2], bool es_fijo){
 	nodo_t *nodo = malloc(sizeof(nodo_t));
 	if (nodo == NULL)
 		return NULL;

@@ -34,6 +34,7 @@ void vector_producto_por_escalar_ons(size_t d, float a[d], float escalar);
 float distancia_a_punto(const float p1[], const float p2[]);
 
 //devuelve por nombre la distancia de un segmento (resorte) a un punto
-//float distancia_a_segmento(const float punto[], const resorte_t *resorte);
+float distancia_a_segmento(const float punto[], const float posi[], const float posf[]);
+
 
 #endif

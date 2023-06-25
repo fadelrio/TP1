@@ -13,7 +13,7 @@ Muchas de las funciones y el funcionamiento general de este TDA está pensado pa
 typedef struct nodo nodo_t;
 typedef struct resorte resorte_t;
 
-nodo_t *nodo_crear(float posicion[2], bool es_fijo);
+nodo_t *nodo_crear(const float posicion[2], bool es_fijo);
 
 //no se ocupa de liberar los resortes asociados
 void nodo_destruir(nodo_t *nodo);
