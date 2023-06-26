@@ -1,6 +1,7 @@
 #include "nodo.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 
 struct nodo{
@@ -83,7 +84,8 @@ void nodo_actualizar_posicion(nodo_t *nodo,const float posicion[2]){
 
 
 bool nodo_comparar(nodo_t *nodo1, nodo_t *nodo2){
-	return (nodo1->posicion[0] == nodo2->posicion[0]) && (nodo1->posicion[1] == nodo2->posicion[1]);
+	//return (nodo1->posicion[0] == nodo2->posicion[0]) && (nodo1->posicion[1] == nodo2->posicion[1]);
+	return nodo1 == nodo2;
 }
 
 bool nodo_es_fijo(const nodo_t *nodo){

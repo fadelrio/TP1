@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "malla.h"
+#include "vector.h"
 
 #ifdef TTF
 #include <SDL2/SDL_ttf.h>
@@ -24,6 +25,21 @@ void escribir_texto(SDL_Renderer *renderer, TTF_Font *font, const char *s, int x
     SDL_FreeSurface(surface);
 }
 #endif
+
+static void _click_izq(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
+	if (que_hay_cerca == NADA){
+		agregar_nodo_a_malla(malla, pos, false);
+	}
+	if (que_hay_cerca == NODO){
+		agregar_resorte_a_malla(malla, pos, pos);
+	}
+}
+
+static void _dibujando_izq(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
+	if (que_hay_cerca == NODO){
+		mover_nodo(malla, pos);
+	}
+}
 
 
 int main(int argc, char *argv[]) {
@@ -48,11 +64,13 @@ int main(int argc, char *argv[]) {
     int dormir = 0;
 
     // BEGIN código del alumno
-
-
-
-
-
+	typedef enum estado {CONSTRUCCION,SIMULACION} estado_t;
+	bool esta_dibujando = false;
+	malla_t *malla = malla_crear();
+	float pos[2] = {0,0};
+	bool click_izq = false;
+	tipo_t que_hay_cerca = NADA;
+	
 
     // END código del alumno
 
@@ -63,7 +81,48 @@ int main(int argc, char *argv[]) {
                 break;
 
             // BEGIN código del alumno
-
+			if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                click_izq = true;
+                pos[0] = event.motion.x;
+                pos[1] = event.motion.y;
+                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
+                que_hay_cerca = malla_tipo_cercano(malla, pos);
+            }
+            else if(event.type == SDL_MOUSEMOTION && click_izq) {
+            	click_izq = false;
+                esta_dibujando = true;
+                //esta dibujando con click izq
+                pos[0] = event.motion.x;
+                pos[1] = event.motion.y;
+                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
+                _dibujando_izq(que_hay_cerca, pos, malla);
+            }else if(event.type == SDL_MOUSEMOTION && esta_dibujando) {
+           		//esta dibujando con click izq
+           		pos[0] = event.motion.x;
+                pos[1] = event.motion.y;
+                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
+           		_dibujando_izq(que_hay_cerca, pos, malla);
+            }
+            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_izq) {
+                //se hizo click con el boton izq
+                if(esta_dibujando && que_hay_cerca == NODO){
+                	esta_dibujando = false;
+                	finalizar_mover_nodo(malla);
+                	que_hay_cerca = NADA;
+                }
+                _click_izq(que_hay_cerca, pos, malla);
+                if (que_hay_cerca == NODO)
+                	esta_dibujando = true;
+                click_izq = false;
+                
+            }else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && esta_dibujando) {
+                //dejó de dibujar
+                esta_dibujando = false;
+                if (que_hay_cerca == NODO){              
+                	finalizar_mover_nodo(malla);
+                	que_hay_cerca = NADA;
+                }
+            }
 
 
 
@@ -89,8 +148,8 @@ int main(int argc, char *argv[]) {
 */
 #endif
 
-    
-
+    	
+		malla_graficar(renderer, malla);
 
 
 
@@ -111,7 +170,7 @@ int main(int argc, char *argv[]) {
 
     // BEGIN código del alumno
 
-
+	malla_destruir(malla);
 
 
 

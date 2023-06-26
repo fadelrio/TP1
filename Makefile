@@ -4,7 +4,7 @@ all: MonoBridge
 
 MonoBridge: malla.o main.o nodo.o resorte.o lista.o vector.o simulador.o
 	gcc malla.o main.o nodo.o resorte.o lista.o vector.o simulador.o -o MonoBridge -lSDL2 -lm
-main.o: main.c malla.h config.h
+main.o: main.c malla.h config.h vector.h
 	gcc $(CFLAGS) -lSDL2 -c main.c
 malla.o: malla.c malla.h nodo.h resorte.h lista.h vector.h simulador.h config.h
 	gcc $(CFLAGS) -lSDL2 -c malla.c

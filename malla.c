@@ -7,7 +7,7 @@
 #include "config.h"
 
 
-#define R_CERCANIA 2 //POR PONER UN NUMERO
+#define R_CERCANIA .3 //POR PONER UN NUMERO
 
 //pense que si ibamos a tratar a los resortes como listas enlazadas, por que no tambien a los nodos? y asi unificamos metodologias
 
@@ -33,7 +33,7 @@ static void _malla_eliminar_nodo(malla_t *malla);
 
 static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo);
 
-static nodo_t *_obtener_nodo_mas_lejano(size_t n, nodo_t **nodos, const float pos[]);
+static bool _se_puede_mover(size_t n, nodo_t **nodos, const float pos[]);
 
 static bool _resorte_es_ganador_visitar(void *resorte, void *es_ganador);
 
@@ -97,7 +97,7 @@ bool agregar_nodo_a_malla(malla_t *malla, const float pos[], bool es_fijo){
     
     if(!lista_insertar_primero(malla->nodos, n))
         return false;
-    
+    fprintf(stderr, "-------------------------------------------se creo el nodo\n");
     return true;
 }
 
@@ -167,11 +167,17 @@ static void malla_que_hay_cerca(malla_t *malla, const float punto[], tipo_t *tip
             *tipo = NODO;
             malla->nodo_cercano_actual = naux;
             lista_iter_destruir(nodo_iter);
+            return;
             //Ya si hay un solo nodo en la cercanía del radio, no puede haber 2
             //No se pueden crear dos nodos a una distancia entre ellos menor a R_CERCANIA, que el usuario no joda
         }
         if(!lista_iter_avanzar(nodo_iter))
             break;
+    }
+    
+    if(lista_esta_vacia(malla->resortes)){
+        *tipo = NADA;
+        return;
     }
 
     lista_iter_destruir(nodo_iter);
@@ -190,6 +196,7 @@ static void malla_que_hay_cerca(malla_t *malla, const float punto[], tipo_t *tip
             *tipo = RESORTE;
             malla->resorte_cercano_actual = raux;
             lista_iter_destruir(res_iter);
+            return;
         }
 
         if(!lista_iter_avanzar(nodo_iter))
@@ -212,8 +219,11 @@ tipo_t malla_tipo_cercano(malla_t *malla, const float pos[]){
 static void _malla_eliminar_resorte(malla_t *malla){
     lista_iter_t *res_iter = lista_iter_crear(malla->resortes);
         while (!lista_iter_al_final(res_iter)){
-            if(!lista_iter_avanzar(res_iter) || resorte_comparar(lista_iter_ver_actual(res_iter), malla->resorte_cercano_actual))
+            if(resorte_comparar(lista_iter_ver_actual(res_iter), malla->resorte_cercano_actual)){
+                lista_iter_avanzar(res_iter); 
                 break;
+            }
+            lista_iter_avanzar(res_iter);
     }
     resorte_t *res = lista_iter_borrar(res_iter); //solo hago esta asignación pq lista_iter_borrar no es void
     lista_iter_destruir(res_iter);
@@ -223,14 +233,18 @@ static void _malla_eliminar_resorte(malla_t *malla){
 static void _malla_eliminar_nodo(malla_t *malla){
     lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
     while (!lista_iter_al_final(nodo_iter)){
-        if(!lista_iter_avanzar(nodo_iter) || nodo_comparar(lista_iter_ver_actual(nodo_iter), malla->nodo_cercano_actual)) //Habria q implementar esta funcion
-            break;
+        if(nodo_comparar(lista_iter_ver_actual(nodo_iter), malla->nodo_cercano_actual)){ //Habria q implementar esta funcion
+          break;
+        lista_iter_avanzar(nodo_iter);
+       
+        }
+        lista_iter_avanzar(nodo_iter);
     }
-
     nodo_t *naux = lista_iter_borrar(nodo_iter);
     resorte_t **rauxs = nodo_obtener_resortes(naux);
     for(size_t i = 0; i < nodo_obtener_cantidad_de_resortes(naux); i++){
         malla->resorte_cercano_actual = rauxs[i];
+        
         _malla_eliminar_resorte(malla);
     }
 
@@ -242,6 +256,8 @@ static void _malla_eliminar_nodo(malla_t *malla){
 static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo){
 	size_t nres;	
 	nodo_t **nodos = malloc((nres = nodo_obtener_cantidad_de_resortes(nodo))* sizeof(nodo));
+	if(nodos == NULL)
+		return NULL;
 	resorte_t **resortes = nodo_obtener_resortes(nodo);
 	for (size_t i = 0; i < nres; i++){
 		nodo_t **aux = resorte_obtener_nodos(resortes[i]);
@@ -255,17 +271,14 @@ static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo){
 }
 
 //n > 1, nodos, pos != NULL
-static nodo_t *_obtener_nodo_mas_lejano(size_t n, nodo_t **nodos, const float pos[]){
-	nodo_t *nodo_mas_lejano = nodos[0];
-	for (size_t i = 1; i < n; i++){
+static bool _se_puede_mover(size_t n, nodo_t **nodos, const float pos[]){
+	for (size_t i = 0; i < n; i++){
 		float aux[2];
 		nodo_obtener_posicion(nodos[i],aux);
-		float aux1[2];
-		nodo_obtener_posicion(nodo_mas_lejano, aux1);
-		if (distancia_a_punto(aux, pos) > distancia_a_punto(aux1, pos))
-			nodo_mas_lejano = nodos[i];
+		if (distancia_a_punto(aux, pos) > L0_MAX)
+			return false;
 	}
-	return nodo_mas_lejano; 
+	return true; 
 }
 
 
@@ -273,40 +286,25 @@ static nodo_t *_obtener_nodo_mas_lejano(size_t n, nodo_t **nodos, const float po
 //Pre: Se llamó a que_hay_cerca antes, devolvió NODO y la malla no es nula. Si se ejecuta después de agregar_resorte, se moverá al nodo final de el resorte. Se puede llamar sucesivas veces para mover al mismo nodo sin llamar a que_hay_cerca cada vez. 
 //Post: Se movió el nodo a pos[], o a el punto mas cerca a pos[] en el caso de que las longitudes de los resortes no lo permitan
 bool mover_nodo(malla_t *malla, const float pos[2]){
+	fprintf(stderr, "-------llegó\n");
 	if (nodo_es_fijo(malla->nodo_cercano_actual))
 		return false;
 	size_t nres = nodo_obtener_cantidad_de_resortes(malla->nodo_cercano_actual);
+	//float pos[2];
+	//nodo_obtener_posicion
 	if (nres == 0){
 		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos);
-		return true;
+		fprintf(stderr, "se movió a x:%f y:%f\n", pos[0], pos[1]);
 	}
 	nodo_t **nodos_aledanos = _obtener_nodos_aledanos(malla->nodo_cercano_actual);
 	if (nodos_aledanos == NULL)
 		return false;
-	
-
-	nodo_t *nodo_en_uso;	
-	if (nres == 1){
-		nodo_en_uso = nodos_aledanos[0];	
-	}else{
-		nodo_en_uso = _obtener_nodo_mas_lejano(nres, nodos_aledanos, pos);
-	}
-	float pos_nodo_en_uso[2];
-	nodo_obtener_posicion(nodo_en_uso, pos_nodo_en_uso);
-	if (distancia_a_punto(pos_nodo_en_uso, pos) <= L0_MAX){
+		
+	if (_se_puede_mover(nres, nodos_aledanos, pos)){
 		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos);
-	}else{															//planteo algebraico para encontrar un punto a distancia L0_MAX en la recta que 
-		float nodo_pos[2];
-		nodo_obtener_posicion(nodo_en_uso, nodo_pos);		//conecta al nodo con pos
-		float aux[2];
-		vector_resta(2, pos, nodo_pos, aux);
-		float escalar = (L0_MAX)/(vector_norma(2, aux));
-		float producto[2];
-		vector_producto_por_escalar(2, aux, producto, escalar);
-		float pos_final[2];
-		vector_suma(2, producto, nodo_pos, pos_final);
-		nodo_actualizar_posicion(malla->nodo_cercano_actual, pos_final);
+		fprintf(stderr, "se movió a x:%f y:%f\n", pos[0], pos[1]);
 	}
+		
 		
 	//actualizacion de resortes
 	resorte_t **resortes = nodo_obtener_resortes(malla->nodo_cercano_actual);
@@ -320,18 +318,22 @@ bool mover_nodo(malla_t *malla, const float pos[2]){
 
 void finalizar_mover_nodo(malla_t *malla){
 	lista_iter_t *iter = lista_iter_crear(malla->nodos);
+	if (iter == NULL)
+		return;
 	bool condicion;
 	nodo_t *nodo_actual;
 	float aux[2];
 	float aux1[2];
-	do {
+	while (!lista_iter_al_final(iter)){
 		nodo_actual = lista_iter_ver_actual(iter);
 		nodo_obtener_posicion(malla->nodo_cercano_actual,aux);
 		nodo_obtener_posicion(nodo_actual, aux1);
 		condicion = (distancia_a_punto(aux, aux1) < R_CERCANIA);
-		if (condicion && (nodo_actual != malla->nodo_cercano_actual))
+		if (condicion && (nodo_actual != malla->nodo_cercano_actual)){
 			break;
-	}while (lista_iter_avanzar(iter));
+		};
+		lista_iter_avanzar(iter);
+	}
 	//pasar resortes de nodo_cercano_actual a nodo_actual y borrar nodo_cercano_actual. si lista iter no esta al final
 	if (lista_iter_al_final(iter)){
 		lista_iter_destruir(iter);
@@ -349,7 +351,8 @@ void finalizar_mover_nodo(malla_t *malla){
 		}
 		resorte_actualizar(resortes[i]);
 	}
-	nodo_destruir(malla->nodo_cercano_actual);
+	lista_iter_destruir(iter);
+	_malla_eliminar_nodo(malla);
 	malla->nodo_cercano_actual = NULL;
 }
 
@@ -373,6 +376,7 @@ void malla_graficar(SDL_Renderer *renderer, malla_t *malla){
 }
 
 static bool _graficar_nodo(void *nodo, void *renderer){
+	fprintf(stderr, "------------se intentó graficar\n");
 	SDL_Renderer *ren = renderer;
 	nodo_t *n = nodo;
 	float pos[2];
@@ -380,8 +384,10 @@ static bool _graficar_nodo(void *nodo, void *renderer){
 	vector_producto_por_escalar_ons(2, pos, 50);
 	if (nodo_es_fijo(n)){
 		SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0x00);
-	}else
-		SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0x00, 0x00);
+	}else{
+		SDL_SetRenderDrawColor(ren, 0xFF, 0xFF, 0xFF, 0x00);
+	}
+	
 	float ancho = 10;
 	SDL_Rect r1 = {pos[0] - ancho/2, pos[1] - ancho/2, ancho, ancho};
 	SDL_RenderDrawRect(ren, &r1);
@@ -422,4 +428,21 @@ void malla_eliminar_elemento(malla_t *malla, tipo_t tipo){
     return funcion(malla);*/
     funciones_eliminar[tipo](malla); //ta bien asi o es como lo anterior?
 }
+
+
+/*void malla_volcar_a_archivo(FILE *f, malla_t *malla){
+	
+}
+
+static bool _escribir_numero_de_datos(FILE *f, size_t numero){
+	return fwrite(&numero, sizeof(uint32_t), 1, f);
+}
+static bool _escribir_nodo(FILE *f, nodo_t nodo){
+	float pos[2];
+	
+	size_t n = fwrite(&x, sizeof(double), 1, f);
+	n += fwrite(&y, sizeof(double), 1, f);
+	n += fwrite(&es_fijo, sizeof(uint8_t), 1, f);
+	return n == 3;
+}*/
 

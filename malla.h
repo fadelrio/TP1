@@ -84,6 +84,15 @@ void malla_iniciar_simulacion(malla_t *malla);
 //Post: se simuló un instante dt de el sistema
 void malla_simular(malla_t *malla);
 
+//Crea un archivo binario con la informacion suficiente para recrear la malla
+//Pre: f esta abierto como archivo binario y malla no es null
+//Post: f tiene la informacion de la malla actual
+void malla_volcar_a_archivo(FILE *f, malla_t *malla);
+
+//Crea una malla en base a la informacion del archivo
+//Pre: f es un archivo valido y malla no es null y no tiene nodos ni resortes 
+//Post: se mapeo una malla en base a f
+void malla_recrear_de_archivo(FILE *f, malla_t *malla);
 
 
 #endif
