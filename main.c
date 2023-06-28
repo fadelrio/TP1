@@ -44,11 +44,17 @@ static void _dibujando_izq(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
 
 static void _click_der(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
 	if (que_hay_cerca == NADA){
-		//simulador_simular(simulador, DT);
+		if(!malla_iniciar_simulacion(malla))
+			fprintf(stderr,"------error");
 	}
 	else malla_eliminar_elemento(malla, que_hay_cerca);
 }
 
+static void _obtener_pos(SDL_Event event, float pos[2]){
+	pos[0] = event.motion.x;
+    pos[1] = event.motion.y;
+    vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
+}
 
 int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
@@ -79,6 +85,8 @@ int main(int argc, char *argv[]) {
 	bool click_izq = false;
 	bool click_der = false;
 	tipo_t que_hay_cerca = NADA;
+	estado_t estado = CONSTRUCCION;
+	
 	
 
     // END código del alumno
@@ -90,70 +98,70 @@ int main(int argc, char *argv[]) {
                 break;
 
             // BEGIN código del alumno
-			if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
-                click_izq = true;
-                pos[0] = event.motion.x;
-                pos[1] = event.motion.y;
-                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
-                que_hay_cerca = malla_tipo_cercano(malla, pos);
-            }
-
-            else if(event.type == SDL_MOUSEMOTION && click_izq) {
-            	click_izq = false;
-                esta_dibujando = true;
-                //esta dibujando con click izq
-                pos[0] = event.motion.x;
-                pos[1] = event.motion.y;
-                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
-                _dibujando_izq(que_hay_cerca, pos, malla);
-            }
-
-            if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
-                click_der = true;
-                pos[0] = event.motion.x;
-                pos[1] = event.motion.y;
-                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
-                que_hay_cerca = malla_tipo_cercano(malla, pos);
-            }
+            if (estado == CONSTRUCCION){
+				if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+                	click_izq = true;
+                	_obtener_pos(event, pos);
+                	if (!esta_dibujando)
+                		que_hay_cerca = malla_tipo_cercano(malla, pos);
+	            }
+	
+	            else if(event.type == SDL_MOUSEMOTION && click_izq) {
+	            	click_izq = false;
+	                esta_dibujando = true;
+	                //esta dibujando con click izq
+	                _obtener_pos(event, pos);
+	                _dibujando_izq(que_hay_cerca, pos, malla);
+	            }
+	
+	            if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+	                click_der = true;
+	                _obtener_pos(event, pos);
+	                que_hay_cerca = malla_tipo_cercano(malla, pos);
+	            }
+	            
+	            
+	            else if(event.type == SDL_MOUSEMOTION && esta_dibujando) {
+	           		//esta dibujando con click izq
+	           		_obtener_pos(event, pos);
+	           		_dibujando_izq(que_hay_cerca, pos, malla);
+	            }
+	
+	            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_izq) {
+	                //se hizo click con el boton izq
+	                if(esta_dibujando && que_hay_cerca == NODO){
+	                	esta_dibujando = false;
+	                	finalizar_mover_nodo(malla);
+	                	que_hay_cerca = NADA;
+	                }else{
+	                	_click_izq(que_hay_cerca, pos, malla);
+	                }
+	                
+	                if (que_hay_cerca == NODO){
+	                	esta_dibujando = true;
+	                	
+	                }
+	                click_izq = false;
+	            }
+	
+	            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && esta_dibujando) {
+	                //dejó de dibujar
+	                esta_dibujando = false;
+	                if (que_hay_cerca == NODO){              
+	                	finalizar_mover_nodo(malla);
+	                	que_hay_cerca = NADA;
+	                }
+	            }
+	
+	            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT && click_der) {
+	                //se hizo click con el boton der
+	                _click_der(que_hay_cerca, pos, malla);
+		                click_der = false;
+		            if (que_hay_cerca == NADA)
+		            	estado = SIMULACION;
+	            }
             
-            
-            else if(event.type == SDL_MOUSEMOTION && esta_dibujando) {
-           		//esta dibujando con click izq
-           		pos[0] = event.motion.x;
-                pos[1] = event.motion.y;
-                vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
-           		_dibujando_izq(que_hay_cerca, pos, malla);
-            }
-
-            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && click_izq) {
-                //se hizo click con el boton izq
-                if(esta_dibujando && que_hay_cerca == NODO){
-                	esta_dibujando = false;
-                	finalizar_mover_nodo(malla);
-                	que_hay_cerca = NADA;
-                }
-                _click_izq(que_hay_cerca, pos, malla);
-                if (que_hay_cerca == NODO)
-                	esta_dibujando = true;
-                click_izq = false;
-            }
-
-            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT && esta_dibujando) {
-                //dejó de dibujar
-                esta_dibujando = false;
-                if (que_hay_cerca == NODO){              
-                	finalizar_mover_nodo(malla);
-                	que_hay_cerca = NADA;
-                }
-            }
-
-            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT && click_der) {
-                //se hizo click con el boton der
-                _click_der(que_hay_cerca, pos, malla);
-                click_der = false;
-            }
-            
-
+			}
 
 
 
@@ -177,7 +185,8 @@ int main(int argc, char *argv[]) {
         escribir_texto(renderer, font, aux, VENTANA_ANCHO - 100, VENTANA_ALTO - 34);
 */
 #endif
-
+		if (estado == SIMULACION)
+			malla_simular(malla);
     	
 		malla_graficar(renderer, malla);
 
@@ -189,6 +198,7 @@ int main(int argc, char *argv[]) {
 
         SDL_RenderPresent(renderer);
         ticks = SDL_GetTicks() - ticks;
+        fprintf(stderr, "ticks: %d\n", ticks);
         if(dormir) {
             SDL_Delay(dormir);
             dormir = 0;

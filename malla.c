@@ -31,6 +31,8 @@ static void _malla_eliminar_resorte(malla_t *malla);
 
 static void _malla_eliminar_nodo(malla_t *malla);
 
+static void _malla_eliminar_nodo_sin_resortes(malla_t *malla);
+
 static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo);
 
 static bool _se_puede_mover(size_t n, nodo_t **nodos, const float pos[]);
@@ -252,6 +254,23 @@ static void _malla_eliminar_nodo(malla_t *malla){
     lista_iter_destruir(nodo_iter);
 }
 
+static void _malla_eliminar_nodo_sin_resortes(malla_t *malla){
+	lista_iter_t *nodo_iter = lista_iter_crear(malla->nodos);
+    while (!lista_iter_al_final(nodo_iter)){
+        if(nodo_comparar(lista_iter_ver_actual(nodo_iter), malla->nodo_cercano_actual)){ //Habria q implementar esta funcion
+			if(nodo_es_fijo(lista_iter_ver_actual(nodo_iter))){
+				lista_iter_destruir(nodo_iter);
+				return;
+			}
+			fprintf(stderr,"------Lo encontró");
+			break;
+		}
+        lista_iter_avanzar(nodo_iter);
+    }
+    nodo_t *naux = lista_iter_borrar(nodo_iter);
+    nodo_destruir(naux);
+    lista_iter_destruir(nodo_iter);
+}
 
 static nodo_t **_obtener_nodos_aledanos(nodo_t *nodo){
 	size_t nres;	
@@ -342,14 +361,16 @@ void finalizar_mover_nodo(malla_t *malla){
 		nodo_agregar_resorte(resortes[i], nodo_actual);
 		nodo_t **nodos_resorte = resorte_obtener_nodos(resortes[i]);
 		if (nodos_resorte[0] == malla->nodo_cercano_actual){
-			nodos_resorte[0] = nodo_actual;		
+			nodos_resorte[0] = nodo_actual;
+			fprintf(stderr, "-------Primer caso\n");	
 		}else {
-			nodos_resorte[1] = nodo_actual;	
+			nodos_resorte[1] = nodo_actual;
+			fprintf(stderr, "-------Segundo caso\n");	
 		}
 		resorte_actualizar(resortes[i]);
 	}
+	_malla_eliminar_nodo_sin_resortes(malla);
 	lista_iter_destruir(iter);
-	_malla_eliminar_nodo(malla);
 	malla->nodo_cercano_actual = NULL;
 }
 
@@ -377,7 +398,8 @@ static bool _graficar_nodo(void *nodo, void *renderer){
 	nodo_t *n = nodo;
 	float pos[2];
 	nodo_obtener_posicion(n, pos);
-	vector_producto_por_escalar_ons(2, pos, 50);
+//	fprintf(stderr, "x:%f, y:%f\n", pos[0], pos[1]);
+	vector_producto_por_escalar_ons(2, pos, FACTOR_ESCALA);
 	if (nodo_es_fijo(n)){
 		SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0x00);
 	}else{
@@ -398,8 +420,8 @@ static bool _graficar_resorte(void *resorte, void *renderer){
 	nodo_t **nodos = resorte_obtener_nodos(res);
 	nodo_obtener_posicion(nodos[0], pos1);
 	nodo_obtener_posicion(nodos[1], pos2);
-	vector_producto_por_escalar_ons(2, pos1, 50);
-	vector_producto_por_escalar_ons(2, pos2, 50);
+	vector_producto_por_escalar_ons(2, pos1, FACTOR_ESCALA);
+	vector_producto_por_escalar_ons(2, pos2, FACTOR_ESCALA);
 	if(resorte_es_ganador(res)){
 		SDL_SetRenderDrawColor(ren, 0x00, 0x00, 0xFF, 0x00);
 	}else
@@ -408,11 +430,17 @@ static bool _graficar_resorte(void *resorte, void *renderer){
 	return true;
 }
 
-void malla_iniciar_simulacion(malla_t *malla){
+bool malla_iniciar_simulacion(malla_t *malla){
+	fprintf(stderr,"--------Se creó el simulador");
 	malla->simulador = simulador_crear(malla->nodos, malla->resortes);
+	if (malla->simulador == NULL){
+		return false;
+	}
+		return true;
 }
 
 void malla_simular(malla_t *malla){
+	
 	simulador_simular(malla->simulador, DT);
 }
 
@@ -422,7 +450,7 @@ feliminar_t funciones_eliminar[] = {_malla_eliminar_nodo, _malla_eliminar_resort
 void malla_eliminar_elemento(malla_t *malla, tipo_t tipo){
     /*feliminar_t funcion = funciones_eliminar[tipo];
     return funcion(malla);*/
-    funciones_eliminar[tipo](malla); //ta bien asi o es como lo anterior?
+    funciones_eliminar[tipo](malla); //ta bien asi o es como lo anterior? Ta perfecto.
 }
 
 

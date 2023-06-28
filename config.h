@@ -5,7 +5,7 @@
 #define VENTANA_ALTO 600
 
 #define JUEGO_FPS 25
-#define DT 0.0005
+#define DT 0.005
 #define DURACION_SIMULACION 10.0
 
 #define G 9.81                      // Gravedad

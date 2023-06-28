@@ -77,7 +77,7 @@ void malla_graficar(SDL_Renderer *renderer, malla_t *malla);
 //prepara todo para poder llamar a malla_simular()
 //Pre: malla no es null
 //Post: se puede llamar a malla_simular()
-void malla_iniciar_simulacion(malla_t *malla);
+bool malla_iniciar_simulacion(malla_t *malla);
 
 //Simula el sistema masas-resortes de la malla
 //Pre: se llamó (una vez, al principio) a malla_iniciar_simulacion()
