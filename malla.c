@@ -440,8 +440,9 @@ bool malla_iniciar_simulacion(malla_t *malla){
 }
 
 void malla_simular(malla_t *malla){
-	
-	simulador_simular(malla->simulador, DT);
+	size_t iteraciones = ((float)1/JUEGO_FPS/DT);
+	for(size_t i = 0; i < iteraciones; i++)
+		simulador_simular(malla->simulador, DT);
 }
 
 typedef void (*feliminar_t)(malla_t *);

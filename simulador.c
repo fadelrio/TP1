@@ -91,21 +91,19 @@ static void _simular_resorte(simulador_t *sim, resorte_simulado_t *resorte_sim, 
 	_simular_nodo(sim->sim, (resorte_sim->nodos_simulados[0]), masa, dt);
 	_simular_nodo(sim->sim, (resorte_sim->nodos_simulados[1]), masa, dt);
 	float npos_nodo0[2];
-	float npos_nodo1[2];
+
 	
 	
 //	fprintf(stderr, "-------------3----------x:%f y:%f\n", (resorte_sim->nodos_simulados[0])->pos_ant[0],(resorte_sim->nodos_simulados[0])->pos_ant[1]);
-	_termino_resorte(resorte_sim, (resorte_sim->nodos_simulados[0])->pos_ant, (resorte_sim->nodos_simulados[1])->pos_ant, masa, dt, npos_nodo0);
-	_termino_resorte(resorte_sim, (resorte_sim->nodos_simulados[1])->pos_ant, (resorte_sim->nodos_simulados[0])->pos_ant, masa, dt, npos_nodo1);
+	for (size_t i = 0; i < 2; i++){
+		if(!nodo_es_fijo(resorte_sim->nodos_simulados[0]->nodo)){
+			_termino_resorte(resorte_sim, (resorte_sim->nodos_simulados[i])->pos_ant, (resorte_sim->nodos_simulados[1-i])->pos_ant, masa, dt, npos_nodo0);
 	
-	
-	(resorte_sim->nodos_simulados[0])->pos_act[0] += npos_nodo0[0];
-	(resorte_sim->nodos_simulados[0])->pos_act[1] += npos_nodo0[1];
-	(resorte_sim->nodos_simulados[1])->pos_act[0] += npos_nodo1[0];
-	(resorte_sim->nodos_simulados[1])->pos_act[1] += npos_nodo1[1];
-	
-	nodo_actualizar_posicion((resorte_sim->nodos_simulados[0])->nodo, (resorte_sim->nodos_simulados[0])->pos_act);
-	nodo_actualizar_posicion((resorte_sim->nodos_simulados[1])->nodo, (resorte_sim->nodos_simulados[1])->pos_act);
+			(resorte_sim->nodos_simulados[i])->pos_act[0] += npos_nodo0[0];
+			(resorte_sim->nodos_simulados[i])->pos_act[1] += npos_nodo0[1];
+			nodo_actualizar_posicion((resorte_sim->nodos_simulados[i])->nodo, (resorte_sim->nodos_simulados[i])->pos_act);
+		}
+	}
 }
 
 //nodo1 - nodo2
