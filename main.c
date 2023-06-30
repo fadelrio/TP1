@@ -87,7 +87,9 @@ int main(int argc, char *argv[]) {
 	tipo_t que_hay_cerca = NADA;
 	estado_t estado = CONSTRUCCION;
 	
-	
+	pos[0] = VENTANA_ANCHO/100;
+	pos[1] = VENTANA_ALTO/100;
+	agregar_nodo_a_malla(malla, pos, true);
 
     // END código del alumno
 
