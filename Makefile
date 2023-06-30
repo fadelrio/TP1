@@ -3,7 +3,7 @@ CFLAGS=-Wall -std=c99 -pedantic -g -lm
 all: MonoBridge
 
 MonoBridge: malla.o main.o nodo.o resorte.o lista.o vector.o simulador.o
-	gcc malla.o main.o nodo.o resorte.o lista.o vector.o simulador.o -o MonoBridge -lSDL2 -lm
+	gcc malla.o main.o nodo.o resorte.o lista.o vector.o simulador.o -o MonoBridge -lSDL2 -lSDL2_ttf -lm
 main.o: main.c malla.h config.h vector.h
 	gcc $(CFLAGS) -lSDL2 -c main.c
 malla.o: malla.c malla.h nodo.h resorte.h lista.h vector.h simulador.h config.h

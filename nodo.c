@@ -40,7 +40,6 @@ bool nodo_agregar_resorte(resorte_t *resorte, nodo_t *nodo){
 		resorte_t **aux = realloc(nodo->resortes,((nodo->resortes_memb * 1.5) * sizeof(resorte_t*)));
 		if (aux == NULL)
 			return false;
-		free(nodo->resortes);
 		nodo->resortes = aux;
 		nodo->resortes_memb *= 1.5;
 	}

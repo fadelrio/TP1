@@ -6,7 +6,6 @@
 #include "vector.h"
 #include "simulador.h"
 
-#ifdef TTF
 #include <SDL2/SDL_ttf.h>
 
 void escribir_texto(SDL_Renderer *renderer, TTF_Font *font, const char *s, int x, int y) {
@@ -25,7 +24,7 @@ void escribir_texto(SDL_Renderer *renderer, TTF_Font *font, const char *s, int x
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
-#endif
+
 
 static void _click_izq(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
 	if (que_hay_cerca == NADA){
@@ -42,10 +41,16 @@ static void _dibujando_izq(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
 	}
 }
 
-static void _click_der(tipo_t que_hay_cerca, float pos[2], malla_t *malla){
+static void _click_der(tipo_t que_hay_cerca, float pos[2], malla_t *malla, size_t nivel){
 	if (que_hay_cerca == NADA){
+		char aux[100];
+		sprintf(aux,"monobridge_nivel_%ld.bin", (nivel + 1));
+		FILE *f = fopen(aux, "wb");
+		malla_volcar_a_archivo(f, malla);
+		fclose(f);
 		if(!malla_iniciar_simulacion(malla))
 			fprintf(stderr,"------error");
+		
 	}
 	else malla_eliminar_elemento(malla, que_hay_cerca);
 }
@@ -56,17 +61,26 @@ static void _obtener_pos(SDL_Event event, float pos[2]){
     vector_producto_por_escalar_ons(2, pos, (float)1/FACTOR_ESCALA);
 }
 
+static void _iniciar_nivel(malla_t *malla, size_t nivel){
+		float pos[2];
+		pos[0] = (VENTANA_ANCHO/100) + 2 + (float)nivel/2;
+		pos[1] = VENTANA_ALTO/100;
+		agregar_nodo_a_malla(malla, pos, true);
+		pos[0] = (VENTANA_ANCHO/100) - 2 - (float)nivel/2;
+		agregar_nodo_a_malla(malla, pos, true);
+}
+
 int main(int argc, char *argv[]) {
     SDL_Init(SDL_INIT_VIDEO);
 
-#ifdef TTF
+
     TTF_Init();
     TTF_Font* font = TTF_OpenFont("FreeSansBold.ttf", 24);
     if(font == NULL) {
         fprintf(stderr, "No pudo cargarse la tipografía\n");
         return 1;
     }
-#endif
+
 
     SDL_Window *window;
     SDL_Renderer *renderer;
@@ -86,10 +100,24 @@ int main(int argc, char *argv[]) {
 	bool click_der = false;
 	tipo_t que_hay_cerca = NADA;
 	estado_t estado = CONSTRUCCION;
+	size_t nivel = 0;
+	float tiempo = 0;
+	bool ganador;
 	
-	pos[0] = VENTANA_ANCHO/100;
-	pos[1] = VENTANA_ALTO/100;
-	agregar_nodo_a_malla(malla, pos, true);
+	
+	if(argc == 2){
+		FILE *f = fopen(argv[1], "rb");
+		malla_recrear_de_archivo(f, malla);
+		fclose(f);
+	}else{
+		_iniciar_nivel(malla, nivel);
+	}
+	if(argc > 2){
+		fprintf(stderr, "Uso: %s archivo_de_malla.bin", argv[0]);
+		SDL_DestroyRenderer(renderer);
+    	SDL_DestroyWindow(window);
+    	return 1;
+	}
 
     // END código del alumno
 
@@ -157,12 +185,38 @@ int main(int argc, char *argv[]) {
 	
 	            else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT && click_der) {
 	                //se hizo click con el boton der
-	                _click_der(que_hay_cerca, pos, malla);
+	                _click_der(que_hay_cerca, pos, malla, nivel);
 		                click_der = false;
 		            if (que_hay_cerca == NADA)
 		            	estado = SIMULACION;
 	            }
             
+			}else if (estado == SIMULACION){
+				if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_RIGHT) {
+					click_der = true;
+				}
+				else if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_RIGHT && click_der) {
+					//click con botonn derecho
+					if (tiempo > 10){
+						malla_destruir(malla);
+						malla = malla_crear();
+						if (ganador){
+							nivel++;
+							_iniciar_nivel(malla, nivel);
+							estado = CONSTRUCCION; 
+						} else {
+							char aux[100];
+							sprintf(aux,"monobridge_nivel_%ld.bin", (nivel + 1));
+							FILE *f = fopen(aux, "rb");
+							malla_recrear_de_archivo(f, malla);
+							fclose(f);
+							fprintf(stderr, "sin error\n");
+							remove(aux);
+							estado = CONSTRUCCION;
+						}
+						tiempo = 0;
+					}
+				}
 			}
 
 
@@ -187,8 +241,18 @@ int main(int argc, char *argv[]) {
         escribir_texto(renderer, font, aux, VENTANA_ANCHO - 100, VENTANA_ALTO - 34);
 */
 #endif
-		if (estado == SIMULACION)
+		if (estado == SIMULACION){
 			malla_simular(malla);
+			tiempo += (float)1/JUEGO_FPS;
+			if (tiempo > 10 && tiempo <10.5){
+				ganador = es_ganadora(malla);	
+			}
+			if (tiempo > 10){
+				escribir_texto(renderer, font, ganador? "Ganaste!":"Perdiste :(", VENTANA_ANCHO/2, VENTANA_ALTO/4);
+			}
+		}
+		
+		
     	
 		malla_graficar(renderer, malla);
 

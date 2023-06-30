@@ -95,7 +95,6 @@ void simulador_simular(simulador_t *sim, float dt){
 
 	for (size_t i = 0;i < sim->n_res; i++){
 		_simular_resorte(sim, sim->resortes_simulados[i], sim->masa, dt);
-		
 	}
 }
 
@@ -192,6 +191,7 @@ static bool _convertir_resortes(void *r, void *sim){
 	resorte_simulado_t *resorte_simulado = malloc(sizeof(resorte_simulado_t));
 	if (resorte_simulado == NULL)
 		return true;
+	fprintf(stderr, "-----lo res:%f", resorte_obtener_longitud(resorte));
 	resorte_simulado->resorte = resorte;
 	resorte_simulado->nodos_simulados = malloc(2 * sizeof(nodo_simulado_t));
 	if (resorte_simulado->nodos_simulados == NULL){
@@ -205,6 +205,7 @@ static bool _convertir_resortes(void *r, void *sim){
 	nodo_obtener_posicion(nodos[1], pos);
 	resorte_simulado->nodos_simulados[1] = _obtener_nodo_por_posicion(simulador->n_nodos_aux,simulador->nodos_simulados_auxiliares, pos);
 	simulador->resortes_simulados[simulador->n_res++] = resorte_simulado;
+
 	return true;
 	
 }

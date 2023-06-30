@@ -8,7 +8,7 @@
 struct resorte{
 
 	float longitud;//depende de la posicion de los nodos, se deberá actualizar cuando se modifique la posicion de los nodos
-	float constante;//depende de la longitud, se debera actualizar en los mismos casos en los q se actualice la longitud
+	float constante;
 	nodo_t *nodos[2];//PUEDEN SER MODIFICADOS POR FUERA DE LAS FUNCIONES DE RESORTE.H cada vez que se modifiquen se deberá llamar a la función para actualizar
 
 };
@@ -59,6 +59,7 @@ bool resorte_actualizar(resorte_t *resorte){
 	nodo_obtener_posicion(resorte->nodos[1],xn2);
 	vector_resta(2,xn1,xn2,aux);	
 	resorte->longitud = vector_norma(2, aux);
+	resorte->constante = K_BASE/powf(resorte->longitud, POTENCIA_K);
 	return true; //no me acuerdo por que puse que devolvía bool, lo veré mas adelante.
 }
 

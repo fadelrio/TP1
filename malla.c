@@ -43,6 +43,15 @@ static bool _graficar_nodo(void *nodo, void *renderer);
 
 static bool _graficar_resorte(void *resorte, void *renderer);
 
+static void _recrear_nodo(FILE *f, malla_t *malla);
+
+static void _recrear_resorte(FILE *f, malla_t *malla);
+
+static bool _escribir_numero_de_datos(FILE *f, size_t numero);
+
+static bool _escribir_nodo(void *nodo, void *f);
+
+static bool _escribir_resorte(void *resorte, void *f);
 
 
 
@@ -99,7 +108,6 @@ bool agregar_nodo_a_malla(malla_t *malla, const float pos[], bool es_fijo){
     
     if(!lista_insertar_primero(malla->nodos, n))
         return false;
-    fprintf(stderr, "-------------------------------------------se creo el nodo\n");
     return true;
 }
 
@@ -262,7 +270,7 @@ static void _malla_eliminar_nodo_sin_resortes(malla_t *malla){
 				lista_iter_destruir(nodo_iter);
 				return;
 			}
-			fprintf(stderr,"------Lo encontró");
+		
 			break;
 		}
         lista_iter_avanzar(nodo_iter);
@@ -362,10 +370,10 @@ void finalizar_mover_nodo(malla_t *malla){
 		nodo_t **nodos_resorte = resorte_obtener_nodos(resortes[i]);
 		if (nodos_resorte[0] == malla->nodo_cercano_actual){
 			nodos_resorte[0] = nodo_actual;
-			fprintf(stderr, "-------Primer caso\n");	
+//			fprintf(stderr, "-------Primer caso\n");	
 		}else {
 			nodos_resorte[1] = nodo_actual;
-			fprintf(stderr, "-------Segundo caso\n");	
+//			fprintf(stderr, "-------Segundo caso\n");	
 		}
 		resorte_actualizar(resortes[i]);
 	}
@@ -385,7 +393,7 @@ static bool _resorte_es_ganador_visitar(void *resorte, void *es_ganador){
 	resorte_t *res = resorte;
 	bool *es_g = es_ganador;
 	*es_g = resorte_es_ganador(res);
-	return *es_g;
+	return (*es_g);
 }
 
 void malla_graficar(SDL_Renderer *renderer, malla_t *malla){
@@ -431,7 +439,7 @@ static bool _graficar_resorte(void *resorte, void *renderer){
 }
 
 bool malla_iniciar_simulacion(malla_t *malla){
-	fprintf(stderr,"--------Se creó el simulador");
+//	fprintf(stderr,"--------Se creó el simulador");
 	malla->simulador = simulador_crear(malla->nodos, malla->resortes);
 	if (malla->simulador == NULL){
 		return false;
@@ -455,19 +463,69 @@ void malla_eliminar_elemento(malla_t *malla, tipo_t tipo){
 }
 
 
-/*void malla_volcar_a_archivo(FILE *f, malla_t *malla){
-	
+void malla_recrear_de_archivo(FILE *f, malla_t *malla){
+	size_t n;
+	fread(&n, sizeof(size_t), 1, f);
+	for(size_t i = 0; i < n; i++)
+		_recrear_nodo(f, malla);
+	fread(&n, sizeof(size_t), 1, f);
+	fprintf(stderr, "------%ld\n", n);
+	for(size_t i = 0; i < n; i++)
+		_recrear_resorte(f, malla);
+}
+
+static void _recrear_nodo(FILE *f, malla_t *malla){
+	float pos[2];
+	bool es_fijo;
+	fread(pos, sizeof(float), 2, f);
+	fread(&es_fijo, sizeof(bool), 1, f);
+	agregar_nodo_a_malla(malla, pos, es_fijo);
+}
+
+static void _recrear_resorte(FILE *f, malla_t *malla){
+	float posi[2];
+	float posf[2];
+	if(fread(posi, sizeof(float), 2, f) != 2)
+		fprintf(stderr, "error\n");
+	if(fread(posf, sizeof(float), 2, f) != 2)
+		fprintf(stderr, "error\n");
+	if (malla_tipo_cercano(malla, posi) != NODO){
+		fprintf(stderr, "no se encontro\n");
+		return;
+	}
+	agregar_resorte_a_malla(malla, posi, posi);
+	mover_nodo(malla, posf);
+	finalizar_mover_nodo(malla);
+	fprintf(stderr, "resorte creado\n");
+}
+
+
+void malla_volcar_a_archivo(FILE *f, malla_t *malla){
+	_escribir_numero_de_datos(f, lista_largo(malla->nodos));
+	lista_recorrer(malla->nodos, _escribir_nodo, f);
+	_escribir_numero_de_datos(f, lista_largo(malla->resortes));
+	lista_recorrer(malla->resortes, _escribir_resorte, f);
 }
 
 static bool _escribir_numero_de_datos(FILE *f, size_t numero){
-	return fwrite(&numero, sizeof(uint32_t), 1, f);
+	return fwrite(&numero, sizeof(size_t), 1, f);
 }
-static bool _escribir_nodo(FILE *f, nodo_t nodo){
+static bool _escribir_nodo(void *nodo, void *f){
 	float pos[2];
-	
-	size_t n = fwrite(&x, sizeof(double), 1, f);
-	n += fwrite(&y, sizeof(double), 1, f);
-	n += fwrite(&es_fijo, sizeof(uint8_t), 1, f);
+	nodo_obtener_posicion((nodo_t *)nodo, pos);
+	bool es_fijo = nodo_es_fijo((nodo_t *)nodo);
+	size_t n = fwrite(pos, sizeof(float), 2, (FILE *)f);
+	n += fwrite(&es_fijo, sizeof(bool), 1, (FILE *)f);
 	return n == 3;
-}*/
+}
+static bool _escribir_resorte(void *resorte, void *f){
+	
+	nodo_t **nodos = resorte_obtener_nodos((resorte_t*)resorte);
+	float pos[2];
+	nodo_obtener_posicion(nodos[0], pos);
+	fwrite(pos, sizeof(float), 2, (FILE *)f);
+	nodo_obtener_posicion(nodos[1], pos);
+	fwrite(pos, sizeof(float), 2, (FILE *)f);
+	return true;
+}
 
