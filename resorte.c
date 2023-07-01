@@ -8,7 +8,7 @@
 struct resorte{
 
 	float longitud;//depende de la posicion de los nodos, se deberá actualizar cuando se modifique la posicion de los nodos
-	float constante;
+	float constante;//depende de la posicion, se debera actualizar cuando se actualice esta.
 	nodo_t *nodos[2];//PUEDEN SER MODIFICADOS POR FUERA DE LAS FUNCIONES DE RESORTE.H cada vez que se modifiquen se deberá llamar a la función para actualizar
 
 };

@@ -94,9 +94,13 @@ static void _resorte_destruir(void *resorte){
 }
 
 void malla_destruir(malla_t *malla){
+	fprintf(stderr, "se intentó destruir\n");
     lista_destruir(malla->nodos, _nodo_destruir);
     lista_destruir(malla->resortes, _resorte_destruir);
-    simulador_destruir(malla->simulador);
+    if (malla->simulador != NULL){
+		fprintf(stderr, "se intentó destruir sim\n");
+	    simulador_destruir(malla->simulador);
+	}
 
     free(malla);
 }

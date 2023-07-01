@@ -108,12 +108,14 @@ int main(int argc, char *argv[]) {
 	if(argc == 2){
 		FILE *f = fopen(argv[1], "rb");
 		malla_recrear_de_archivo(f, malla);
+		nivel = (argv[1][17] - '0' - 1);
+		fprintf(stderr, "----------nivel:%ld\n", nivel);
 		fclose(f);
 	}else{
 		_iniciar_nivel(malla, nivel);
 	}
 	if(argc > 2){
-		fprintf(stderr, "Uso: %s archivo_de_malla.bin", argv[0]);
+		fprintf(stderr, "Uso: %s archivo_de_malla.bin\n", argv[0]);
 		SDL_DestroyRenderer(renderer);
     	SDL_DestroyWindow(window);
     	return 1;
@@ -210,7 +212,6 @@ int main(int argc, char *argv[]) {
 							FILE *f = fopen(aux, "rb");
 							malla_recrear_de_archivo(f, malla);
 							fclose(f);
-							fprintf(stderr, "sin error\n");
 							remove(aux);
 							estado = CONSTRUCCION;
 						}
@@ -244,7 +245,7 @@ int main(int argc, char *argv[]) {
 		if (estado == SIMULACION){
 			malla_simular(malla);
 			tiempo += (float)1/JUEGO_FPS;
-			if (tiempo > 10 && tiempo <10.5){
+			if (tiempo > 10 && tiempo < (10+(float)1/JUEGO_FPS)){
 				ganador = es_ganadora(malla);	
 			}
 			if (tiempo > 10){
@@ -277,9 +278,6 @@ int main(int argc, char *argv[]) {
     // BEGIN código del alumno
 
 	malla_destruir(malla);
-    //simulador_destruir(simulador);
-
-
 
     // END código del alumno
 
