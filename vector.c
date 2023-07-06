@@ -50,7 +50,7 @@ static float parametro_distancia(const float a[], const float posi[], const floa
 	float vaux[2];
 	float vaux2[2];
 	vector_resta(2, a, posi, vaux);
-	vector_resta(2, posi, posf, vaux2);
+	vector_resta(2, posf, posi, vaux2);
 
 	return producto_interno(2, vaux, vaux2) / powf(vector_norma(2, vaux2), 2.0);
 }

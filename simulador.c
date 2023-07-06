@@ -105,11 +105,9 @@ static void _simular_resorte(simulador_t *sim, resorte_simulado_t *resorte_sim, 
 
 	
 	
-//	fprintf(stderr, "-------------3----------x:%f y:%f\n", (resorte_sim->nodos_simulados[0])->pos_ant[0],(resorte_sim->nodos_simulados[0])->pos_ant[1]);
 	for (size_t i = 0; i < 2; i++){
 		if(!nodo_es_fijo(resorte_sim->nodos_simulados[i]->nodo)){
 			_termino_resorte(resorte_sim, (resorte_sim->nodos_simulados[i])->pos_ant, (resorte_sim->nodos_simulados[1-i])->pos_ant, masa, dt, npos_nodo0);
-//			fprintf(stderr, "-------------3----------x:%f y:%f\n",npos_nodo0[0],npos_nodo0[0]);
 			(resorte_sim->nodos_simulados[i])->pos_act[0] += npos_nodo0[0];
 			(resorte_sim->nodos_simulados[i])->pos_act[1] += npos_nodo0[1];
 			nodo_actualizar_posicion((resorte_sim->nodos_simulados[i])->nodo, (resorte_sim->nodos_simulados[i])->pos_act);
@@ -119,18 +117,13 @@ static void _simular_resorte(simulador_t *sim, resorte_simulado_t *resorte_sim, 
 
 //nodo1 - nodo2
 static void _termino_resorte(resorte_simulado_t *resorte_sim, float pos_nodo1[2], float pos_nodo2[2], float masa, float dt, float npos[2]){
-//	fprintf(stderr, "-------------4----------x:%f y:%f\n",pos_nodo1[0],pos_nodo1[1]);
-//	fprintf(stderr, "-------------4----------x:%f y:%f\n",pos_nodo2[0],pos_nodo2[1]);
 	float a = (masa/(dt*dt)) + (AM)/dt;
 	vector_resta(2, pos_nodo1, pos_nodo2, npos);
 	
 	float long_ant = vector_norma(2, npos);
 	for (size_t i = 0; i < 2; i++){
-//		fprintf(stderr, "----1:%f \n",(resorte_obtener_longitud(resorte_sim->resorte) - long_ant)/long_ant);
 		npos[i] *= (resorte_obtener_longitud(resorte_sim->resorte) - long_ant)/long_ant;
-//		fprintf(stderr, "----2:%f \n",resorte_obtener_constante(resorte_sim->resorte));
 		npos[i] *= resorte_obtener_constante(resorte_sim->resorte);
-//		fprintf(stderr, "----npos:%f \n", npos[i]);
 		npos[i]	/= a;	
 	}
 }
@@ -142,11 +135,9 @@ static void _simular_nodo(size_t sim, nodo_simulado_t *nodo_sim, float masa, flo
 	nodo_sim->pos_antant[1] = nodo_sim->pos_ant[1];
 	nodo_sim->pos_ant[0] = nodo_sim->pos_act[0];
 	nodo_sim->pos_ant[1] = nodo_sim->pos_act[1];
-//	fprintf(stderr, "---------1------x:%f y:%f\n",nodo_sim->pos_act[0],nodo_sim->pos_act[1]);
 	float aux[2];
 	aux[0] = _simular_nodo_eje_x(nodo_sim, masa, dt);
 	aux[1] = _simular_nodo_eje_y(nodo_sim, masa, dt);
-//	fprintf(stderr, "---------2------x:%f y:%f\n",aux[0],aux[1]);
 	nodo_actualizar_posicion(nodo_sim->nodo, aux);
 	nodo_sim->pos_act[0] = aux[0];
 	nodo_sim->pos_act[1] = aux[1];
@@ -191,7 +182,6 @@ static bool _convertir_resortes(void *r, void *sim){
 	resorte_simulado_t *resorte_simulado = malloc(sizeof(resorte_simulado_t));
 	if (resorte_simulado == NULL)
 		return true;
-	fprintf(stderr, "-----lo res:%f", resorte_obtener_longitud(resorte));
 	resorte_simulado->resorte = resorte;
 	resorte_simulado->nodos_simulados = malloc(2 * sizeof(nodo_simulado_t));
 	if (resorte_simulado->nodos_simulados == NULL){
@@ -218,7 +208,6 @@ static nodo_simulado_t *_convertir_nodo(nodo_t *nodo){
 		nodo_simulado->sim = 0;
 		float pos[2];
 		nodo_obtener_posicion(nodo, pos);
-		fprintf(stderr, "------------posicion x:%f y:%f\n", pos[0], pos[1]);
 		nodo_simulado->pos_act[0] = pos[0];
 		nodo_simulado->pos_act[1] = pos[1];
 		nodo_simulado->pos_ant[0] = pos[0];

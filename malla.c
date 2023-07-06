@@ -7,7 +7,7 @@
 #include "config.h"
 
 
-#define R_CERCANIA .3 //POR PONER UN NUMERO
+#define R_CERCANIA .2
 
 //pense que si ibamos a tratar a los resortes como listas enlazadas, por que no tambien a los nodos? y asi unificamos metodologias
 
@@ -94,14 +94,11 @@ static void _resorte_destruir(void *resorte){
 }
 
 void malla_destruir(malla_t *malla){
-	fprintf(stderr, "se intentó destruir\n");
     lista_destruir(malla->nodos, _nodo_destruir);
     lista_destruir(malla->resortes, _resorte_destruir);
     if (malla->simulador != NULL){
-		fprintf(stderr, "se intentó destruir sim\n");
 	    simulador_destruir(malla->simulador);
 	}
-
     free(malla);
 }
 
@@ -374,10 +371,8 @@ void finalizar_mover_nodo(malla_t *malla){
 		nodo_t **nodos_resorte = resorte_obtener_nodos(resortes[i]);
 		if (nodos_resorte[0] == malla->nodo_cercano_actual){
 			nodos_resorte[0] = nodo_actual;
-//			fprintf(stderr, "-------Primer caso\n");	
 		}else {
 			nodos_resorte[1] = nodo_actual;
-//			fprintf(stderr, "-------Segundo caso\n");	
 		}
 		resorte_actualizar(resortes[i]);
 	}
@@ -410,7 +405,6 @@ static bool _graficar_nodo(void *nodo, void *renderer){
 	nodo_t *n = nodo;
 	float pos[2];
 	nodo_obtener_posicion(n, pos);
-//	fprintf(stderr, "x:%f, y:%f\n", pos[0], pos[1]);
 	vector_producto_por_escalar_ons(2, pos, FACTOR_ESCALA);
 	if (nodo_es_fijo(n)){
 		SDL_SetRenderDrawColor(ren, 0x00, 0xFF, 0x00, 0x00);
@@ -443,7 +437,6 @@ static bool _graficar_resorte(void *resorte, void *renderer){
 }
 
 bool malla_iniciar_simulacion(malla_t *malla){
-//	fprintf(stderr,"--------Se creó el simulador");
 	malla->simulador = simulador_crear(malla->nodos, malla->resortes);
 	if (malla->simulador == NULL){
 		return false;
@@ -473,7 +466,6 @@ void malla_recrear_de_archivo(FILE *f, malla_t *malla){
 	for(size_t i = 0; i < n; i++)
 		_recrear_nodo(f, malla);
 	fread(&n, sizeof(size_t), 1, f);
-	fprintf(stderr, "------%ld\n", n);
 	for(size_t i = 0; i < n; i++)
 		_recrear_resorte(f, malla);
 }
@@ -500,7 +492,6 @@ static void _recrear_resorte(FILE *f, malla_t *malla){
 	agregar_resorte_a_malla(malla, posi, posi);
 	mover_nodo(malla, posf);
 	finalizar_mover_nodo(malla);
-	fprintf(stderr, "resorte creado\n");
 }
 
 
@@ -514,6 +505,8 @@ void malla_volcar_a_archivo(FILE *f, malla_t *malla){
 static bool _escribir_numero_de_datos(FILE *f, size_t numero){
 	return fwrite(&numero, sizeof(size_t), 1, f);
 }
+
+
 static bool _escribir_nodo(void *nodo, void *f){
 	float pos[2];
 	nodo_obtener_posicion((nodo_t *)nodo, pos);

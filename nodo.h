@@ -13,12 +13,16 @@ Muchas de las funciones y el funcionamiento general de este TDA está pensado pa
 typedef struct nodo nodo_t;
 typedef struct resorte resorte_t;
 
+//Crea y devuelve por nombre un nodo con su posicion y fijación inicializadosS
 nodo_t *nodo_crear(const float posicion[2], bool es_fijo);
 
-//no se ocupa de liberar los resortes asociados
+//Pre: el nodo no es NULL y había sido creado
+//Post: destruye el nodo pero no se ocupa de liberar los resortes asociados
 void nodo_destruir(nodo_t *nodo);
 
-//agrega un resorte a los asociados al nodo
+//Agrega un resorte a los asociados al nodo
+//Pre: el nodo estaba creado e inicializado
+//Post: Linkea un resorte a la lista
 bool nodo_agregar_resorte(resorte_t *resorte, nodo_t *nodo);
 
 //elimina un resorte de los asociados al nodo. devuelve false si el resorte no estaba vinculado al nodo. No libera la memoria del resorte

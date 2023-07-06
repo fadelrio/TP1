@@ -265,7 +265,6 @@ int main(int argc, char *argv[]) {
 
         SDL_RenderPresent(renderer);
         ticks = SDL_GetTicks() - ticks;
-        fprintf(stderr, "ticks: %d\n", ticks);
         if(dormir) {
             SDL_Delay(dormir);
             dormir = 0;
