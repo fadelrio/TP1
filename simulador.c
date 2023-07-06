@@ -79,8 +79,11 @@ void simulador_destruir(simulador_t *simulador){
 		free(simulador->nodos_sin_resortes_simulados[i]);
 	for (size_t i = 0; i<simulador->n_nodos_aux; i++)
 		free(simulador->nodos_simulados_auxiliares[i]);
-	for (size_t i = 0; i<simulador->n_res; i++)
+	for (size_t i = 0; i<simulador->n_res; i++){
+		free(simulador->resortes_simulados[i]->nodos_simulados);
 		free(simulador->resortes_simulados[i]);
+	}
+	free(simulador->nodos_simulados_auxiliares);
 	free(simulador->resortes_simulados);
 	free(simulador->nodos_sin_resortes_simulados);
 	free(simulador);

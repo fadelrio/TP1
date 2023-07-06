@@ -211,7 +211,7 @@ static void malla_que_hay_cerca(malla_t *malla, const float punto[], tipo_t *tip
             return;
         }
 
-        if(!lista_iter_avanzar(nodo_iter))
+        if(!lista_iter_avanzar(res_iter))
             break;
     }
 

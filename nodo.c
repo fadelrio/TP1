@@ -26,6 +26,7 @@ nodo_t *nodo_crear(const float posicion[2], bool es_fijo){
 }
 
 void nodo_destruir(nodo_t *nodo){
+	free(nodo->resortes);
 	free(nodo);
 }
 
